@@ -49,11 +49,11 @@ const navigation = [
   //   href: "/ui/breadcrumbs",
   //   icon: "bi bi-link",
   // },
-  // {
-  //   title: "About",
-  //   href: "/about",
-  //   icon: "bi bi-people",
-  // },
+  {
+    title: "Settings",
+    href: "/about",
+    icon: "bi bi-sliders",
+  },
 ];
 
 const Sidebar = ({ showMobilemenu }) => {
