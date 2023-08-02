@@ -2,7 +2,7 @@
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
 
 const ProjectTables = (param) => {
-  console.log(param.qrCodesList)
+
   return (
     <Card>
       <CardBody>
@@ -73,7 +73,7 @@ const ProjectTables = (param) => {
                       position: 'relative',
                       marginLeft: '1.2rem'
                     }}>
-                      <i style={{}} class="bi bi-gear-fill"></i>
+                      <i style={{}} className="bi bi-gear-fill"></i>
                     </h5>
                   </td>
                 </tr>

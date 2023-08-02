@@ -7,11 +7,16 @@ import {
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
 import { firestore } from "../../src/config/firebaseConfig";
 import getQrCodes from "../../src/functions/getQrCodes";
-import { Button } from 'reactstrap';
+import { useDropzone } from 'react-dropzone';
+import { Button, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from "../../src/config/firebaseConfig";
 
 const qrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
 
   useEffect(async () => { 
     const db = firestore;
@@ -19,6 +24,43 @@ const qrCodes = () => {
       setQrCodesList(data);
     });
   }, []);
+
+  const onDrop = (acceptedFiles) => {
+
+    if(acceptedFiles.length === 0) return console.log('No files were uploaded');
+
+    acceptedFiles.forEach((file) => {
+      const storageRef = ref(storage, `glbFiles/general/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+  
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Puedes usar este código para obtener el progreso de la carga si lo deseas
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        }, 
+        (error) => {
+          // Manejo de errores
+          console.log(error);
+        }, 
+        async () => {
+          // Completa el manejo de la carga
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log('File available at', downloadURL);
+        }
+      );
+    });
+
+  };
+  
+  
+  
+  
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: '.glb' // Solo acepta archivos .glb
+  });
 
   return (
     <div>
@@ -29,14 +71,47 @@ const qrCodes = () => {
       </Head>
 
       <div className="d-flex justify-content-end p-3">
-        <Button className="rounded-circle">
-          <i className="bi bi-plus"></i>
+        <Button  
+          style={{
+            backgroundColor: 'white !important',
+            borderRadius: '50% !important',
+            height: '3rem !important',
+            minWidth: '3rem !important',
+            boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
+          }}
+          
+          onClick={() => setModalIsOpen(true)}
+        >
+          <i
+            className="bi bi-plus"
+            style={{
+              fontSize: '1.5rem',
+              position: 'relative',
+              top: '0.05rem',
+              left: '0.05rem',
+              opacity: '0.9'
+            }}  
+          ></i>
         </Button>
       </div>
     
       <Row>
         <ProjectTables qrCodesList={qrCodesList} />
       </Row>
+
+      <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
+        <DialogTitle>Sube tu archivo</DialogTitle>
+        <DialogContent>
+          <div {...getRootProps()}>
+            <input {...getInputProps()} />
+            {
+              isDragActive ?
+                <p>Suelta los archivos aquí...</p> :
+                <p>Arrastra y suelta algunos archivos aquí, o haz clic para seleccionar archivos</p>
+            }
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
