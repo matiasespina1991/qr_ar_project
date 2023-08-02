@@ -1,22 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { DropzoneDialog } from 'material-ui-dropzone';
+import { useEffect, useState } from "react";
 import Head from "next/head";
-import {
-  Row,
-  Col,
-} from "reactstrap";
+import { Row, Button } from "reactstrap";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
 import { firestore } from "../../src/config/firebaseConfig";
 import getQrCodes from "../../src/functions/getQrCodes";
-import { useDropzone } from 'react-dropzone';
-import { Button, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
 
 const qrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [fileObjects, setFileObjects] = useState([]);
 
   useEffect(async () => { 
     const db = firestore;
@@ -25,43 +22,42 @@ const qrCodes = () => {
     });
   }, []);
 
-  const onDrop = (acceptedFiles) => {
+  const handleOpen = () => {
+    setOpen(true);
+  }
 
-    if(acceptedFiles.length === 0) return console.log('No files were uploaded');
+  const handleClose = () => {
+    setOpen(false);
+  }
 
-    acceptedFiles.forEach((file) => {
+  const handleSave = (files) => {
+    setFile(URL.createObjectURL(files[0]));
+    setFileObjects(files);
+    uploadFileToFirebase(files);
+    setOpen(false);
+  }
+
+  const uploadFileToFirebase = (files) => {
+    files.forEach((file) => {
       const storageRef = ref(storage, `glbFiles/general/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
   
       uploadTask.on('state_changed', 
         (snapshot) => {
-          // Puedes usar este código para obtener el progreso de la carga si lo deseas
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log('Upload is ' + progress + '% done');
         }, 
         (error) => {
-          // Manejo de errores
           console.log(error);
         }, 
         async () => {
-          // Completa el manejo de la carga
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log('File available at', downloadURL);
         }
       );
     });
-
-  };
+  }
   
-  
-  
-  
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: '.glb' // Solo acepta archivos .glb
-  });
-
   return (
     <div>
       <Head>
@@ -74,21 +70,24 @@ const qrCodes = () => {
         <Button  
           style={{
             backgroundColor: 'white !important',
+            opacity: '0.8',
+            color: 'black',
+            borderColor: 'transparent',
             borderRadius: '50% !important',
             height: '3rem !important',
             minWidth: '3rem !important',
-            boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
+            boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)'
           }}
           
-          onClick={() => setModalIsOpen(true)}
+          onClick={() => handleOpen()}
         >
           <i
             className="bi bi-plus"
             style={{
               fontSize: '1.5rem',
               position: 'relative',
-              top: '0.05rem',
-              left: '0.05rem',
+              top: '0.3px',
+              left: '0.5px',
               opacity: '0.9'
             }}  
           ></i>
@@ -99,51 +98,27 @@ const qrCodes = () => {
         <ProjectTables qrCodesList={qrCodesList} />
       </Row>
 
-      <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
-        <DialogTitle>Sube tu archivo</DialogTitle>
-        <DialogContent>
-          <div {...getRootProps()}>
-            <input {...getInputProps()} />
-            {
-              isDragActive ?
-                <p>Suelta los archivos aquí...</p> :
-                <p>Arrastra y suelta algunos archivos aquí, o haz clic para seleccionar archivos</p>
-            }
-          </div>
-        </DialogContent>
-      </Dialog>
-
+      <div>
+      {file ? (
+        <div 
+          dangerouslySetInnerHTML={{
+            __html: `<model-viewer style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
+          }}
+        />
+      ) : (
+        <DropzoneDialog
+          open={open}
+          onSave={handleSave}
+          acceptedFiles={['.glb']}
+          filesLimit={1}
+          maxFileSize={50000000}
+          onClose={handleClose}
+        />
+      )}
+    </div>
+    
     </div>
   );
 };
 
 export default qrCodes;
-
-
-
-     {/* <Card>
-        <CardTitle tag="h6" className="border-bottom p-3 mb-0">
-          <i className="bi bi-bell me-2"> </i>
-          Alert
-        </CardTitle>
-        <CardBody className="">
-          <div className="mt-3">
-            <Alert color="primary">
-              This is a primary alert— check it out!
-            </Alert>
-            <Alert color="secondary">
-              This is a secondary alert— check it out!
-            </Alert>
-            <Alert color="success">
-              This is a success alert— check it out!
-            </Alert>
-            <Alert color="danger">This is a danger alert— check it out!</Alert>
-            <Alert color="warning">
-              This is a warning alert— check it out!
-            </Alert>
-            <Alert color="info">This is a info alert— check it out!</Alert>
-            <Alert color="light">This is a light alert— check it out!</Alert>
-            <Alert color="dark">This is a dark alert</Alert>
-          </div>
-        </CardBody>
-      </Card> */}
