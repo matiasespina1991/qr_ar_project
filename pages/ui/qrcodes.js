@@ -48,13 +48,6 @@ const qrCodes = () => {
 
   const db = getFirestore();
 
-  useEffect(async () => { 
-    const db = firestore;
-    await getQrCodes(db).then((data) => {  
-      setQrCodesList(data);
-    });
-  }, []);
-
   useEffect(() => {
     const q = query(collection(db, "qr_codes"));
 
@@ -79,11 +72,45 @@ const qrCodes = () => {
     
   }, []);
 
-  const handleSubmit = () => {  
-    setOpen(false);
-    uploadFileToFirebase(acceptedFilesState);
+  const captureModelScreenshot = async (modelViewer) => {
+    const canvas = modelViewer.shadowRoot.querySelector('canvas');
+    if (!canvas) return;
     
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    return dataUrl;
+  };  
+
+  const handleSubmit = async () => {  
+    setOpen(false);
+    const modelViewer = document.getElementById('modelViewer');
+    if (!modelViewer) return;
+    
+    const modelPreviewDataUrl = await captureModelScreenshot(modelViewer);
+    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    const modelPreviewFile = dataURLtoFile(modelPreviewDataUrl, `model-preview-${timestampInSeconds}.png`);
+    const modelPreviewStorageRef = ref(storage, `modelPreviewImages/general/${modelPreviewFile.name}`);
+    const modelPreviewUploadTask = uploadBytesResumable(modelPreviewStorageRef, modelPreviewFile);
+    
+  
+    modelPreviewUploadTask.on('state_changed', 
+      (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Model preview upload is ' + progress + '% done');
+      }, 
+      (error) => {
+          console.log(error);
+      }, 
+      async () => {
+          const modelPreviewDownloadURL = await getDownloadURL(modelPreviewUploadTask.snapshot.ref);
+          console.log('Model preview available at', modelPreviewDownloadURL);
+          
+          uploadFileToFirebase(acceptedFilesState, modelPreviewDownloadURL);
+      }
+    );
+    setFile(null);
   }
+  
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: '.glb' });
 
@@ -112,9 +139,13 @@ const qrCodes = () => {
     return new File([u8arr], filename, {type:mime});
   };
 
-  const uploadFileToFirebase = async (files) => {
+  const uploadFileToFirebase = async (files, modelPreviewImageUrl) => {
     for (const file of files) {
-      const storageRef = ref(storage, `glbFiles/general/${file.name}`);
+      const timestampInSeconds = Math.floor(Date.now() / 1000);
+      const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
+      const originalFileExtension = file.name.split('.').pop(); 
+      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`;
+      const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on('state_changed', 
@@ -132,7 +163,8 @@ const qrCodes = () => {
 
           // Generate QR code
           const qrDataUrl = await generateQR();
-          const qrFile = dataURLtoFile(qrDataUrl, 'qr-code.png');
+          const timestampInSeconds = Math.floor(Date.now() / 1000);
+          const qrFile = dataURLtoFile(qrDataUrl, `qr-code-${timestampInSeconds}.png`);
           const qrStorageRef = ref(storage, `qrCodes/general/${qrFile.name}`);
           const qrUploadTask = uploadBytesResumable(qrStorageRef, qrFile);
 
@@ -145,15 +177,17 @@ const qrCodes = () => {
                 console.log(error);
             }, 
             async () => {
-                const qrDownloadURL = await getDownloadURL(qrUploadTask.snapshot.ref);
-                console.log('QR code available at', qrDownloadURL);
+              const qrDownloadURL = await getDownloadURL(qrUploadTask.snapshot.ref);
+              console.log('QR code available at', qrDownloadURL);
 
-                const docData = {
-                  projectName: "Untitled 1",
-                  qrImageUrl: qrDownloadURL,
-                  modelUrl: downloadURL,
-                  status: "paused"
+              const docData = {
+                projectName: "Untitled 1",
+                qrImageUrl: qrDownloadURL,
+                modelPreviewImageUrl: modelPreviewImageUrl,
+                modelUrl: downloadURL,
+                status: "paused"
               };
+              
               
               await addDoc(collection(db, "qr_codes"), docData);
             }
@@ -231,10 +265,11 @@ const qrCodes = () => {
 
           {file ? (
             <>
-              <Box 
+             <Box 
+                id="modelViewerContainer"
                 style={{height: '23rem'}}
                 dangerouslySetInnerHTML={{
-                  __html: `<model-viewer style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
+                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
                 }}
               />
             </>

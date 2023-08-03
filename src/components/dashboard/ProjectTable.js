@@ -1,7 +1,49 @@
-
+import { useState, useRef, useEffect } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
+import { doc, updateDoc, getFirestore } from "firebase/firestore";
 
-const ProjectTables = (param) => {
+const ProjectTables = ({ qrCodesList }) => {
+  const [editing, setEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const inputRef = useRef(null); // Create a ref
+
+  const handleEdit = (id, name) => {
+    setEditing(true);
+    setEditingId(id);
+    setEditName(name);
+  };
+
+  const handleSave = async (id) => {
+    const db = getFirestore();
+    const docRef = doc(db, "qr_codes", id);
+    await updateDoc(docRef, { projectName: editName });
+    setEditing(false);
+    setEditingId(null);
+    setEditName("");
+  };
+
+  const handleKeyDown = (event, id) => {
+    if (event.key === 'Enter') {
+      handleSave(id);
+    }
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setEditing(false);
+        setEditingId(null);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [inputRef]);
+
 
   return (
     <Card>
@@ -25,9 +67,10 @@ const ProjectTables = (param) => {
                 <th>Settings</th>
               </tr>
             </thead>
+
             <tbody>
-              {param.qrCodesList.map((tdata, index) => (
-                <tr key={index} className="border-top">
+              {qrCodesList.map((tdata, index) => (
+                <tr key={tdata.id} className="border-top">
                   <td>
                     <div className="d-flex align-items-center p-4">
                       <img
@@ -38,8 +81,36 @@ const ProjectTables = (param) => {
                       />
                     </div>
                   </td>
-                  <td>{tdata.previewImageUrl ?? 'N/A'}</td>
-                  <td>{tdata.projectName}</td>
+                  <td>
+                    {
+                      tdata.modelPreviewImageUrl ? 
+                      <img 
+                        style={{objectFit: 'cover',
+                        objectPosition: 'center center',
+                        width: '4rem',
+                        height: '4rem'}}
+                        src={tdata.modelPreviewImageUrl}
+                      />
+                      :
+                      'N/A'
+                    }
+                  </td>
+                  <td style={{width: '15rem'}}>
+                    {editing && editingId === tdata.id ? (
+                      <input
+                        ref={inputRef}
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, tdata.id)}
+                        style={{ width: `${editName.length + 1}ch` }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span onClick={() => handleEdit(tdata.id, tdata.projectName)}>
+                        {tdata.projectName}
+                      </span>
+                    )}
+                  </td>
                   <td>
                     {tdata.status === "pending" ? (
                       <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
