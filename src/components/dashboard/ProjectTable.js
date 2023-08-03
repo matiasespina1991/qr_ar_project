@@ -36,14 +36,10 @@ const ProjectTables = (param) => {
                         width="100"
                         height="100"
                       />
-                      {/* <div className="ms-3">
-                        <h6 className="mb-0">{tdata.name}</h6>
-                        <span className="text-muted">{tdata.email}</span>
-                      </div> */}
                     </div>
                   </td>
                   <td>{tdata.previewImageUrl ?? 'N/A'}</td>
-                  <td>{tdata.project}</td>
+                  <td>{tdata.projectName}</td>
                   <td>
                     {tdata.status === "pending" ? (
                       <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
