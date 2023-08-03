@@ -1,5 +1,4 @@
-import { DropzoneDialog } from 'material-ui-dropzone';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import { Row, Button } from "reactstrap";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
@@ -7,13 +6,41 @@ import { firestore } from "../../src/config/firebaseConfig";
 import getQrCodes from "../../src/functions/getQrCodes";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
+import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles } from "@material-ui/core";
+import { useDropzone } from "react-dropzone";
+import { CircularProgress } from '@material-ui/core';
+
+const useStyles = makeStyles((theme) => ({
+  dropzone: {
+    color: '#7a7a7a',
+    border: '2.5px dashed',
+    height: '100%',
+    margin: '0rem 2rem 1rem 2rem',
+    padding: '16px',
+    textAlign: 'center',
+    display: 'flex',
+    borderColor: '#C7C7C7',
+    backgroundColor: '#F0F0F0',
+    flexDirection: 'column',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  dialogPaper: {
+    height: '100%',
+    maxHeight: '30rem',
+    width: '100%',
+    maxWidth: '60rem',
+  },
+}));
 
 const qrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState(null);
-  const [fileObjects, setFileObjects] = useState([]);
+  const [acceptedFilesState, setAcceptedFilesState] = useState([]);
+  const [progress, setProgress] = useState(0);
 
   useEffect(async () => { 
     const db = firestore;
@@ -22,19 +49,31 @@ const qrCodes = () => {
     });
   }, []);
 
-  const handleOpen = () => {
-    setOpen(true);
+  const classes = useStyles();
+
+  const onDrop = useCallback((acceptedFiles) => {
+    setAcceptedFilesState(acceptedFiles)
+    const fileObject = acceptedFiles[0];
+    setFile(URL.createObjectURL(fileObject));
+   
+    
+  }, []);
+
+  const handleSubmit = () => {  
+    setOpen(false);
+    uploadFileToFirebase(acceptedFilesState);
+    
   }
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: '.glb' });
 
   const handleClose = () => {
+    setFile(null);
     setOpen(false);
   }
 
-  const handleSave = (files) => {
-    setFile(URL.createObjectURL(files[0]));
-    setFileObjects(files);
-    uploadFileToFirebase(files);
-    setOpen(false);
+  const handleOpen = () => {
+    setOpen(true);
   }
 
   const uploadFileToFirebase = (files) => {
@@ -45,6 +84,7 @@ const qrCodes = () => {
       uploadTask.on('state_changed', 
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(progress);
           console.log('Upload is ' + progress + '% done');
         }, 
         (error) => {
@@ -68,17 +108,18 @@ const qrCodes = () => {
 
       <div className="d-flex justify-content-end p-3">
         <Button  
+          disabled={progress > 0 && progress < 99}
           style={{
-            backgroundColor: 'white !important',
+            backgroundColor: (progress > 0 && progress < 99) ? '#cbcbcb' : 'white',
             opacity: '0.8',
-            color: 'black',
+            color: (progress > 0 && progress < 99) ? 'white' : 'black',
             borderColor: 'transparent',
             borderRadius: '50% !important',
             height: '3rem !important',
             minWidth: '3rem !important',
-            boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
+            position: 'relative'
           }}
-          
           onClick={() => handleOpen()}
         >
           <i
@@ -91,32 +132,64 @@ const qrCodes = () => {
               opacity: '0.9'
             }}  
           ></i>
+          { progress > 0 && progress < 100 && 
+            <CircularProgress 
+              variant="determinate"
+              value={progress}
+              size={64}
+            
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                color: '#2962ff',
+                marginTop: -32,
+                marginLeft: -32,
+              }}
+            /> 
+          }
         </Button>
       </div>
+
     
       <Row>
         <ProjectTables qrCodesList={qrCodesList} />
       </Row>
 
       <div>
-      {file ? (
-        <div 
-          dangerouslySetInnerHTML={{
-            __html: `<model-viewer style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
-          }}
-        />
-      ) : (
-        <DropzoneDialog
-          open={open}
-          onSave={handleSave}
-          acceptedFiles={['.glb']}
-          filesLimit={1}
-          maxFileSize={50000000}
-          onClose={handleClose}
-        />
-      )}
-    </div>
-    
+        
+          <Dialog open={open} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >
+            <DialogTitle>Upload Model</DialogTitle>
+
+            {file ? (
+              <div 
+                style={{height: '23rem'}}
+                dangerouslySetInnerHTML={{
+                  __html: `<model-viewer style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
+                }}
+              />
+            ) : (
+                <div {...getRootProps()} className={classes.dropzone}>
+                  <input {...getInputProps()} />
+                  <p>Drag and drop your 3D model in .glb format here, or click to select it.</p>
+                  <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
+                </div>
+            ) }
+
+            <DialogActions>
+              <MuiButton onClick={handleClose} color="primary">
+                Cancel
+              </MuiButton>
+              {
+                file &&
+                <MuiButton onClick={handleSubmit} color="primary">
+                  submit
+                </MuiButton>
+              }
+            </DialogActions>
+          </Dialog>
+        
+      </div>
     </div>
   );
 };
