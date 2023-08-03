@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
+import { Box } from "@material-ui/core";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
+import QRCode from "qrcode.react";
 
 const ProjectTables = ({ qrCodesList }) => {
   const [editing, setEditing] = useState(false);
@@ -74,14 +76,18 @@ const ProjectTables = ({ qrCodesList }) => {
               {qrCodesList.map((tdata, index) => (
                 <tr key={tdata.id} className="border-top">
                   <td>
-                    <div className="d-flex align-items-center p-4">
+                    {/* <div className="d-flex align-items-center p-4">
                       <img
                         src={tdata.qrImageUrl}
                         alt="avatar"
                         width="100"
                         height="100"
                       />
-                    </div>
+                    </div> */}
+
+                    <Box className="d-flex align-items-center p-4">
+                      <QRCode id="qr-code-el" value={tdata.qrUrl} size={120} includeMargin={true} />
+                    </Box>
                   </td>
                   <td>
                     {

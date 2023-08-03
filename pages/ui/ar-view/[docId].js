@@ -9,6 +9,7 @@ export default function ARView() {
   const { docId } = router.query;
 
   const [modelUrl, setModelUrl] = useState(null);
+  const [usdzUrl, setUsdzUrl] = useState(null);
 
   ARView.isARView = true;
 
@@ -22,6 +23,7 @@ export default function ARView() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setModelUrl(data.modelUrl);
+          setUsdzUrl(data.usdzUrl);
         } else {
           console.log("No such document!");
         }
@@ -33,16 +35,18 @@ export default function ARView() {
 
   return (
     <div>
-      <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" />
+      <Script src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js" />
 
       {modelUrl ? (
         <model-viewer 
             src={modelUrl} 
             auto-rotate 
+            autoplay
             camera-controls
             ar 
             ar-modes="scene-viewer webxr quick-look" 
             style={{width: '100%', height: '600px'}}
+            ios-src={usdzUrl}
         ></model-viewer>
       ) : (
         <p>Loading model...</p>

@@ -4,14 +4,15 @@ import { Row, Button } from "reactstrap";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
 import { firestore } from "../../src/config/firebaseConfig";
 import getQrCodes from "../../src/functions/getQrCodes";
-import { doc, addDoc, collection, onSnapshot, query, getFirestore } from "firebase/firestore";
+import { doc,setDoc, addDoc, collection, onSnapshot, query, getFirestore } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
 import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { CircularProgress } from '@material-ui/core';
-import QRCode from 'qrcode.react';
 import { toPng } from 'html-to-image';
+import ReactDOMServer from 'react-dom/server';
+import QRCode from 'qrcode.react';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -124,11 +125,11 @@ const qrCodes = () => {
   }
 
   
-  const generateQR = async () => {
-    const qrCodeEl = document.getElementById('qr-code-el');
-    const dataUrl = await toPng(qrCodeEl);
-    return dataUrl;
-  };
+  // const generateQR = async (docId) => {
+  //   const qrCodeString = ReactDOMServer.renderToString(<QRCode value={`http://192.168.0.126:3000/ui/ar-view/${docId}`} size={256} includeMargin={true} />);
+  //   const dataUrl = `data:image/svg+xml;base64,${Buffer.from(qrCodeString).toString('base64')}`;
+  //   return dataUrl;
+  // };
 
   const dataURLtoFile = (dataurl, filename) => {
     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
@@ -143,11 +144,11 @@ const qrCodes = () => {
     for (const file of files) {
       const timestampInSeconds = Math.floor(Date.now() / 1000);
       const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
-      const originalFileExtension = file.name.split('.').pop(); // obtienes la extensión del archivo original
-      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; // construyes el nuevo nombre
+      const originalFileExtension = file.name.split('.').pop(); 
+      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
       const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
+  
       uploadTask.on('state_changed', 
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -160,42 +161,50 @@ const qrCodes = () => {
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log('File available at', downloadURL);
+  
+          const docData = {
+            projectName: "Untitled 1",
+            qrUrl: "",
+            modelPreviewImageUrl: modelPreviewImageUrl,
+            modelUrl: downloadURL,
+            status: "paused"
+          };
+          
+          // First add the doc and get the docId
+          const docRef = await addDoc(collection(db, "qr_codes"), docData);
+          const docId = docRef.id;
+          const _qrUrl = `http://192.168.0.126:3000/ui/ar-view/${docId}`
 
+          await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
+          
           // Generate QR code
-          const qrDataUrl = await generateQR();
-          const timestampInSeconds = Math.floor(Date.now() / 1000);
-          const qrFile = dataURLtoFile(qrDataUrl, `qr-code-${timestampInSeconds}.png`);
-          const qrStorageRef = ref(storage, `qrCodes/general/${qrFile.name}`);
-          const qrUploadTask = uploadBytesResumable(qrStorageRef, qrFile);
-
-          qrUploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('QR upload is ' + progress + '% done');
-            }, 
-            (error) => {
-                console.log(error);
-            }, 
-            async () => {
-              const qrDownloadURL = await getDownloadURL(qrUploadTask.snapshot.ref);
-              console.log('QR code available at', qrDownloadURL);
-
-              const docData = {
-                projectName: "Untitled 1",
-                qrImageUrl: qrDownloadURL,
-                modelPreviewImageUrl: modelPreviewImageUrl,
-                modelUrl: downloadURL,
-                status: "paused"
-              };
-              
-              
-              await addDoc(collection(db, "qr_codes"), docData);
-            }
-          );
+          // const qrDataUrl = await generateQR(docId);
+          // const timestampInSeconds = Math.floor(Date.now() / 1000);
+          // const qrFile = dataURLtoFile(qrDataUrl, `qr-code-${timestampInSeconds}.png`);
+          // const qrStorageRef = ref(storage, `qrCodes/general/${qrFile.name}`);
+          // const qrUploadTask = uploadBytesResumable(qrStorageRef, qrFile);
+  
+          // qrUploadTask.on('state_changed', 
+          //   (snapshot) => {
+          //     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          //     console.log('QR upload is ' + progress + '% done');
+          //   }, 
+          //   (error) => {
+          //     console.log(error);
+          //   }, 
+          //   async () => {
+          //     const qrDownloadURL = await getDownloadURL(qrUploadTask.snapshot.ref);
+          //     console.log('QR code available at', qrDownloadURL);
+  
+          //     // Update the doc with the QRImageURL
+          //     await setDoc(doc(db, "qr_codes", docId), { qrImageUrl: qrDownloadURL }, { merge: true });
+          //   }
+          // );
         }
       );
     }
   };
+  
   
   return (
     <Box>
@@ -205,17 +214,17 @@ const qrCodes = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Box style={{overflow: 'hidden', height: 0}}>
+      {/* <Box style={{overflow: 'hidden', height: 0}}>
         <QRCode id="qr-code-el" value="http://www.google.com" size={256} includeMargin={true} />
-      </Box>
+      </Box> */}
 
       <Box className="d-flex justify-content-end p-3">
         <Button  
-          disabled={progress > 0 && progress < 99}
+          disabled={progress > 0 && progress < 100}
           style={{
-            backgroundColor: (progress > 0 && progress < 99) ? '#cbcbcb' : 'white',
+            backgroundColor: (progress > 0 && progress < 100) ? '#cbcbcb' : 'white',
             opacity: '0.8',
-            color: (progress > 0 && progress < 99) ? 'white' : 'black',
+            color: (progress > 0 && progress < 100) ? 'white' : 'black',
             borderColor: 'transparent',
             borderRadius: '50% !important',
             height: '3rem !important',
