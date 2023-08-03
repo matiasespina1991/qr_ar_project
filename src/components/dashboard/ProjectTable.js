@@ -8,6 +8,8 @@ const ProjectTables = ({ qrCodesList }) => {
   const [editName, setEditName] = useState("");
   const inputRef = useRef(null); // Create a ref
 
+  console.log(qrCodesList);
+
   const handleEdit = (id, name) => {
     setEditing(true);
     setEditingId(id);

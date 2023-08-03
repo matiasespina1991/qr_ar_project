@@ -143,8 +143,8 @@ const qrCodes = () => {
     for (const file of files) {
       const timestampInSeconds = Math.floor(Date.now() / 1000);
       const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
-      const originalFileExtension = file.name.split('.').pop(); 
-      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`;
+      const originalFileExtension = file.name.split('.').pop(); // obtienes la extensión del archivo original
+      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; // construyes el nuevo nombre
       const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
