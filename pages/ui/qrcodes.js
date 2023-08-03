@@ -7,39 +7,63 @@ import getQrCodes from "../../src/functions/getQrCodes";
 import { doc,setDoc, addDoc, collection, onSnapshot, query, getFirestore } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
-import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box } from "@material-ui/core";
+import { Dialog, DialogTitle, DialogActions, Button as MuiButton, Box, CircularProgress } from "@mui/material";
 import { useDropzone } from "react-dropzone";
-import { CircularProgress } from '@material-ui/core';
 import { toPng } from 'html-to-image';
 import ReactDOMServer from 'react-dom/server';
 import QRCode from 'qrcode.react';
+import { styled } from '@mui/system';
 
 
-const useStyles = makeStyles((theme) => ({
-  dropzone: {
-    color: '#7a7a7a',
-    border: '2.5px dashed',
-    height: '100%',
-    margin: '0rem 2rem 1rem 2rem',
-    padding: '16px',
-    textAlign: 'center',
-    display: 'flex',
-    borderColor: '#C7C7C7',
-    backgroundColor: '#F0F0F0',
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  dialogPaper: {
-    height: '100%',
-    maxHeight: '30rem',
-    width: '100%',
-    maxWidth: '60rem',
-  },
-}));
+// const useStyles = makeStyles((theme) => ({
+//   dropzone: {
+//     color: '#7a7a7a',
+//     border: '2.5px dashed',
+//     height: '100%',
+//     margin: '0rem 2rem 1rem 2rem',
+//     padding: '16px',
+//     textAlign: 'center',
+//     display: 'flex',
+//     borderColor: '#C7C7C7',
+//     backgroundColor: '#F0F0F0',
+//     flexDirection: 'column',
+//     alignContent: 'center',
+//     justifyContent: 'center',
+//     alignItems: 'center'
+//   },
+//   dialogPaper: {
+//     height: '100%',
+//     maxHeight: '30rem',
+//     width: '100%',
+//     maxWidth: '60rem',
+//   },
+// }));
 
-const qrCodes = () => {
+
+const Dropzone = styled(Box)({
+  color: '#7a7a7a',
+  border: '2.5px dashed',
+  height: '100%',
+  margin: '0rem 2rem 1rem 2rem',
+  padding: '16px',
+  textAlign: 'center',
+  display: 'flex',
+  borderColor: '#C7C7C7',
+  backgroundColor: '#F0F0F0',
+  flexDirection: 'column',
+  alignContent: 'center',
+  justifyContent: 'center',
+  alignItems: 'center'
+});
+
+const DialogPaper = styled(Dialog)({
+  height: '100%',
+  maxHeight: '30rem',
+  width: '100%',
+  maxWidth: '60rem',
+});
+
+const QrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
   const [open, setOpen] = useState(false);
@@ -62,8 +86,6 @@ const qrCodes = () => {
 
     return () => unsubscribe();
   }, []);
-
-  const classes = useStyles();
 
   const onDrop = useCallback((acceptedFiles) => {
     setAcceptedFilesState(acceptedFiles)
@@ -218,7 +240,7 @@ const qrCodes = () => {
         <QRCode id="qr-code-el" value="http://www.google.com" size={256} includeMargin={true} />
       </Box> */}
 
-      <Box className="d-flex justify-content-end p-3">
+      <div className="d-flex justify-content-end p-3">
         <Button  
           disabled={progress > 0 && progress < 100}
           style={{
@@ -261,7 +283,7 @@ const qrCodes = () => {
             /> 
           }
         </Button>
-      </Box>
+      </div>
 
     
       <Row>
@@ -269,7 +291,7 @@ const qrCodes = () => {
       </Row>
 
       <Box>
-        <Dialog open={open} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >
+      <DialogPaper open={open} onClose={handleClose}>
           <DialogTitle>Upload Model</DialogTitle>
 
           {file ? (
@@ -284,11 +306,12 @@ const qrCodes = () => {
             </>
           
           ) : (
-              <Box {...getRootProps()} className={classes.dropzone}>
-                <input {...getInputProps()} />
-                <p>Drag and drop your 3D model in .glb format here, or click to select it.</p>
-                <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
-              </Box>
+
+            <Dropzone {...getRootProps()}>
+              <input {...getInputProps()} />
+              <p>Drag and drop your 3D model in .glb format here, or click to select it.</p>
+              <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
+            </Dropzone>
           ) }
 
           <DialogActions>
@@ -302,10 +325,11 @@ const qrCodes = () => {
               </MuiButton>
             }
           </DialogActions>
-        </Dialog>
+      
+        </DialogPaper>
       </Box>
     </Box>
   );
 };
 
-export default qrCodes;
+export default QrCodes;

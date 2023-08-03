@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 import QRCode from "qrcode.react";
 
@@ -10,7 +10,6 @@ const ProjectTables = ({ qrCodesList }) => {
   const [editName, setEditName] = useState("");
   const inputRef = useRef(null); // Create a ref
 
-  console.log(qrCodesList);
 
   const handleEdit = (id, name) => {
     setEditing(true);
@@ -73,7 +72,7 @@ const ProjectTables = ({ qrCodesList }) => {
             </thead>
 
             <tbody>
-              {qrCodesList.map((tdata, index) => (
+              {qrCodesList && qrCodesList.map((tdata, index) => (
                 <tr key={tdata.id} className="border-top">
                   <td>
                     {/* <div className="d-flex align-items-center p-4">

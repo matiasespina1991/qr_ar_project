@@ -35,7 +35,7 @@ export default function ARView() {
 
   return (
     <div>
-      <Script src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js" />
+      <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" strategy="beforeInteractive" />
 
       {modelUrl ? (
         <model-viewer 
