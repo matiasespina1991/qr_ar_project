@@ -3,20 +3,26 @@ import Head from "next/head";
 import "../styles/style.scss";
 
 function MyApp({ Component, pageProps }) {
+  const isARView = Component.isARView;
+
   return (
     <>
       <Head>
-        <title>Ample Admin Next Js Free Aadmin Dashboard </title>
+        <title>QR AR Dashboard </title>
         <meta
           name="description"
-          content="Ample Admin Next Js Aadmin Dashboard "
+          content="QR AR Dashboard "
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <FullLayout>
+      {isARView ? (
         <Component {...pageProps} />
-      </FullLayout>
+      ) : (
+        <FullLayout>
+          <Component {...pageProps} />
+        </FullLayout>
+      )}
     </>
   );
 }
