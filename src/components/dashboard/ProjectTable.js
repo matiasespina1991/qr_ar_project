@@ -86,7 +86,7 @@ const ProjectTables = ({ qrCodesList }) => {
                     </div> */}
 
                     <Box className="d-flex align-items-center p-4">
-                      <QRCode id="qr-code-el" value={tdata.qrUrl} size={120} includeMargin={true} />
+                      <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
                     </Box>
                   </td>
                   <td>
@@ -95,8 +95,8 @@ const ProjectTables = ({ qrCodesList }) => {
                       <img 
                         style={{objectFit: 'cover',
                         objectPosition: 'center center',
-                        width: '4rem',
-                        height: '4rem'}}
+                        width: '6rem',
+                        height: '6rem'}}
                         src={tdata.modelPreviewImageUrl}
                       />
                       :
