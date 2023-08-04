@@ -26,7 +26,7 @@ const ProjectTables = (param) => {
               </tr>
             </thead>
             <tbody>
-              {param.qrCodesList.map((tdata, index) => (
+              {param.qrCodesList && param.qrCodesList.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
                     <div className="d-flex align-items-center p-4">
