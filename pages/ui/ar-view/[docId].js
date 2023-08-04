@@ -35,7 +35,7 @@ export default function ARView() {
 
   return (
     <div>
-      <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" strategy="beforeInteractive" />
+      <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
 
       {modelUrl ? (
         <model-viewer 
@@ -53,4 +53,27 @@ export default function ARView() {
       )}
     </div>
   );
+}
+
+
+export async function getServerSideProps(context) {
+  const { docId } = context.query;
+  const db = firestore;
+  const docRef = doc(db, "qr_codes", docId);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return {
+      props: {
+        modelUrl: data.modelUrl,
+        usdzUrl: data.usdzUrl,
+      }
+    }
+  } else {
+    // You can handle redirection here if the document doesn't exist or return a 404 status.
+    return {
+      notFound: true, // Returns a 404 status
+    }
+  }
 }
