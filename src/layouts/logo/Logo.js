@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Logo = () => {
   return (
-    <Link href="/">
+    <Link href="/" style={{color: 'black', textDecoration: 'none'}}>
       <p style={{ paddingLeft: '0.9rem', fontSize: '1.2rem', paddingTop: '0.1rem'}}>
         <img
           width={30}

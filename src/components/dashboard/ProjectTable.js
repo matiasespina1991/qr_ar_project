@@ -1,7 +1,51 @@
-
+import { useState, useRef, useEffect } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
+import { Box } from "@material-ui/core";
+import { doc, updateDoc, getFirestore } from "firebase/firestore";
+import QRCode from "qrcode.react";
 
-const ProjectTables = (param) => {
+const ProjectTables = ({ qrCodesList }) => {
+  const [editing, setEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const inputRef = useRef(null); // Create a ref
+
+  const handleEdit = (id, name) => {
+    setEditing(true);
+    setEditingId(id);
+    setEditName(name);
+  };
+
+  const handleSave = async (id) => {
+    const db = getFirestore();
+    const docRef = doc(db, "qr_codes", id);
+    await updateDoc(docRef, { projectName: editName });
+    setEditing(false);
+    setEditingId(null);
+    setEditName("");
+  };
+
+  const handleKeyDown = (event, id) => {
+    if (event.key === 'Enter') {
+      handleSave(id);
+    }
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setEditing(false);
+        setEditingId(null);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [inputRef]);
+
 
   return (
     <Card>
@@ -25,25 +69,58 @@ const ProjectTables = (param) => {
                 <th>Settings</th>
               </tr>
             </thead>
+
             <tbody>
-              {param.qrCodesList && param.qrCodesList.map((tdata, index) => (
-                <tr key={index} className="border-top">
+
+              {qrCodesList && qrCodesList.map((tdata, index) => (
+                <tr key={tdata.id} className="border-top">
+
                   <td>
-                    <div className="d-flex align-items-center p-4">
+                    {/* <div className="d-flex align-items-center p-4">
                       <img
                         src={tdata.qrImageUrl}
                         alt="avatar"
                         width="100"
                         height="100"
                       />
-                      {/* <div className="ms-3">
-                        <h6 className="mb-0">{tdata.name}</h6>
-                        <span className="text-muted">{tdata.email}</span>
-                      </div> */}
+                    </div> */}
+
+                    <div className="d-flex align-items-center p-4">
+                      <a href={tdata.qrUrl} target="_blank" rel="noopener noreferrer">
+                        <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
+                      </a>
                     </div>
                   </td>
-                  <td>{tdata.previewImageUrl ?? 'N/A'}</td>
-                  <td>{tdata.project}</td>
+                  <td>
+                    {
+                      tdata.modelPreviewImageUrl ? 
+                      <img 
+                        style={{objectFit: 'cover',
+                        objectPosition: 'center center',
+                        width: '6rem',
+                        height: '6rem'}}
+                        src={tdata.modelPreviewImageUrl}
+                      />
+                      :
+                      'N/A'
+                    }
+                  </td>
+                  <td style={{width: '15rem'}}>
+                    {editing && editingId === tdata.id ? (
+                      <input
+                        ref={inputRef}
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(e, tdata.id)}
+                        style={{ width: `${editName.length + 1}ch` }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span onClick={() => handleEdit(tdata.id, tdata.projectName)}>
+                        {tdata.projectName}
+                      </span>
+                    )}
+                  </td>
                   <td>
                     {tdata.status === "pending" ? (
                       <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
