@@ -28,6 +28,7 @@
     "react-dom": "17.0.2",
     "react-dropzone": "^14.2.3",
     "react-feather": "^2.0.9",
+    "react-helmet": "^6.1.0",
     "react-modal": "^3.16.1",
     "react-model-viewer": "^0.6.1",
     "react-redux": "^7.2.6",
