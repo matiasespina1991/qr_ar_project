@@ -173,7 +173,7 @@ const QrCodes = () => {
           // First add the doc and get the docId
           const docRef = await addDoc(collection(db, "qr_codes"), docData);
           const docId = docRef.id;
-          const _qrUrl = `http://qr-ar-project.web.app//ui/ar-view/${docId}`
+          const _qrUrl = `http://qr-ar-project.vercel.app/ui/ar-view/${docId}`
 
           await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
           
