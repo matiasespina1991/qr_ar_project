@@ -12,7 +12,7 @@ import { Button, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
 
-const qrCodes = () => {
+const QrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -117,7 +117,7 @@ const qrCodes = () => {
   );
 };
 
-export default qrCodes;
+export default QrCodes;
 
 
 
