@@ -1,9 +1,36 @@
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
+import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../../../src/config/firebaseConfig';
 
-function ARView({ modelUrl, usdzUrl }) {
+function ARView() {
+  const router = useRouter();
+  const { docId } = router.query;
+
+  const [modelUrl, setModelUrl] = useState(null);
+  const [usdzUrl, setUsdzUrl] = useState(null);
+
+  useEffect(() => {
+    if (docId) {
+      const fetchData = async () => {
+        const db = firestore;
+        const docRef = doc(db, "qr_codes", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setModelUrl(data.modelUrl);
+          setUsdzUrl(data.usdzUrl);
+        } else {
+          // You can handle redirection here if the document doesn't exist or return a 404 status.
+          router.replace('/404');
+        }
+      }
+
+      fetchData();
+    }
+  }, [docId]); // The useEffect will re-run when `docId` changes
 
   ARView.isARView = true;
 
@@ -30,25 +57,3 @@ function ARView({ modelUrl, usdzUrl }) {
 }
 
 export default ARView;
-
-export async function getServerSideProps(context) {
-  const { docId } = context.query;
-  const db = firestore;
-  const docRef = doc(db, "qr_codes", docId);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    return {
-      props: {
-        modelUrl: data.modelUrl || null,
-        usdzUrl: data.usdzUrl || null,
-      },
-    };
-  } else {
-    // You can handle redirection here if the document doesn't exist or return a 404 status.
-    return {
-      notFound: true, // Returns a 404 status
-    };
-  }
-}
