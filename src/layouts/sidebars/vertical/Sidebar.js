@@ -97,25 +97,24 @@ const Sidebar = ({ showMobilemenu }) => {
         </Nav>
       </div> */}
 
-<div className="pt-4 mt-2">
-  <Nav vertical className="sidebarNav">
-    {navigation.map((navi, index) => (
-      <NavItem key={index} className="sidenav-bg">
-        <Link href={navi.href} className={
-              location === navi.href
-                ? "text-primary nav-link py-3"
-                : "nav-link text-secondary py-3"
-            }>
-          <i className={navi.icon}></i>
-          <span className="ms-3 d-inline-block">{navi.title}</span>
-        </Link>
-      </NavItem>
-    ))}
-  </Nav>
-</div>
-
-
-
+      <div className="pt-4 mt-2">
+        <Nav vertical className="sidebarNav">
+          {navigation.map((navi, index) => (
+            <NavItem key={index} className="sidenav-bg">
+              <Link href={navi.href}>
+                <a className={
+                  location === navi.href
+                    ? "text-primary nav-link py-3"
+                    : "nav-link text-secondary py-3"
+                }>
+                  <i className={navi.icon}></i>
+                  <span className="ms-3 d-inline-block">{navi.title}</span>
+                </a>
+              </Link>
+            </NavItem>
+          ))}
+        </Nav>
+      </div>
     </div>
   );
 };

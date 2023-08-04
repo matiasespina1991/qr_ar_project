@@ -20,26 +20,27 @@
     "firebase": "^10.1.0",
     "html-to-image": "^1.11.11",
     "material-ui-dropzone": "^3.5.0",
-    "next": "13.1.6",
+    "next": "12.0.7",
     "prop-types": "^15.8.0",
     "qrcode": "^1.5.3",
     "qrcode.react": "^3.1.0",
-    "react": "^18.2.0",
+    "react": "17.0.2",
     "react-apexcharts": "^1.4.1",
-    "react-dom": "^18.2.0",
+    "react-dom": "17.0.2",
     "react-dropzone": "^14.2.3",
     "react-feather": "^2.0.9",
     "react-helmet": "^6.1.0",
     "react-modal": "^3.16.1",
     "react-model-viewer": "^0.6.1",
-    "react-redux": "^8.1.2",
+    "react-redux": "^7.2.6",
     "reactstrap": "^9.0.1",
     "sass": "^1.45.1",
-    "simplebar-react": "^3.2.4",
+    "simplebar-react": "^2.3.6",
     "three": "^0.155.0"
   },
   "devDependencies": {
-    "eslint": "^8.46.0",
-    "eslint-config-next": "^13.4.12"
+    "eslint": "8.5.0",
+    "eslint-config-next": "12.0.7"
   }
 }
+
