@@ -16,9 +16,9 @@ function MyApp({ Component, pageProps }) {
       </Head>
 
      
-        <FullLayout>
+      
           <Component {...pageProps} />
-        </FullLayout>
+      
      
     </>
   );
