@@ -71,8 +71,10 @@ const ProjectTables = ({ qrCodesList }) => {
             </thead>
 
             <tbody>
+
               {qrCodesList && qrCodesList.map((tdata, index) => (
                 <tr key={tdata.id} className="border-top">
+
                   <td>
                     {/* <div className="d-flex align-items-center p-4">
                       <img
