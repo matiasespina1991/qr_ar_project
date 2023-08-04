@@ -11,6 +11,10 @@
 .card {
   margin-bottom: 30px;
   box-shadow: $box-shadow;
+  background-color: white;
+}
+.table > :not(caption) > * > * {
+  background-color: white;
 }
 .dropdown-menu {
   box-shadow: $box-shadow;

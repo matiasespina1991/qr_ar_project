@@ -10,8 +10,6 @@ const ProjectTables = ({ qrCodesList }) => {
   const [editName, setEditName] = useState("");
   const inputRef = useRef(null); // Create a ref
 
-  console.log(qrCodesList);
-
   const handleEdit = (id, name) => {
     setEditing(true);
     setEditingId(id);
@@ -73,7 +71,7 @@ const ProjectTables = ({ qrCodesList }) => {
             </thead>
 
             <tbody>
-              {qrCodesList.map((tdata, index) => (
+              {qrCodesList && qrCodesList.map((tdata, index) => (
                 <tr key={tdata.id} className="border-top">
                   <td>
                     {/* <div className="d-flex align-items-center p-4">
@@ -85,9 +83,9 @@ const ProjectTables = ({ qrCodesList }) => {
                       />
                     </div> */}
 
-                    <Box className="d-flex align-items-center p-4">
+                    <div className="d-flex align-items-center p-4">
                       <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
-                    </Box>
+                    </div>
                   </td>
                   <td>
                     {

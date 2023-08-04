@@ -64,12 +64,12 @@ const Sidebar = ({ showMobilemenu }) => {
     <div className="p-3">
       <div className="d-flex align-items-center">
         <Logo />
-        <Button
+        {/* <Button
           close
           size="sm"
           className="ms-auto d-lg-none"
           onClick={showMobilemenu}
-        ></Button>
+        ></Button> */}
       </div>
       <div className="pt-4 mt-2">
         <Nav vertical className="sidebarNav">

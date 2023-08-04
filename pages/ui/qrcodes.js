@@ -226,7 +226,7 @@ const qrCodes = () => {
             opacity: '0.8',
             color: (progress > 0 && progress < 100) ? 'white' : 'black',
             borderColor: 'transparent',
-            borderRadius: '50% !important',
+            borderRadius: '50%',
             height: '3rem !important',
             minWidth: '3rem !important',
             boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
@@ -278,7 +278,7 @@ const qrCodes = () => {
                 id="modelViewerContainer"
                 style={{height: '23rem'}}
                 dangerouslySetInnerHTML={{
-                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${file}" auto-rotate camera-controls></model-viewer>`,
+                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${file}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
                 }}
               />
             </>
