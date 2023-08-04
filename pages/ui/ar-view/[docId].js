@@ -1,37 +1,11 @@
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
 import Script from 'next/script';
+import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../../../src/config/firebaseConfig';
 
-export default function ARView() {
-  const router = useRouter();
-  const { docId } = router.query;
-
-  const [modelUrl, setModelUrl] = useState(null);
-  const [usdzUrl, setUsdzUrl] = useState(null);
+function ARView({ modelUrl, usdzUrl }) {
 
   ARView.isARView = true;
-
-  useEffect(() => {
-    if (docId) {
-      const fetchDoc = async () => {
-        const db = firestore;
-        const docRef = doc(db, "qr_codes", docId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setModelUrl(data.modelUrl);
-          setUsdzUrl(data.usdzUrl);
-        } else {
-          console.log("No such document!");
-        }
-      };
-
-      fetchDoc();
-    }
-  }, [docId]);
 
   return (
     <div>
@@ -55,6 +29,7 @@ export default function ARView() {
   );
 }
 
+export default ARView;
 
 export async function getServerSideProps(context) {
   const { docId } = context.query;
@@ -66,14 +41,14 @@ export async function getServerSideProps(context) {
     const data = docSnap.data();
     return {
       props: {
-        modelUrl: data.modelUrl,
-        usdzUrl: data.usdzUrl,
-      }
-    }
+        modelUrl: data.modelUrl || null,
+        usdzUrl: data.usdzUrl || null,
+      },
+    };
   } else {
     // You can handle redirection here if the document doesn't exist or return a 404 status.
     return {
       notFound: true, // Returns a 404 status
-    }
+    };
   }
 }
