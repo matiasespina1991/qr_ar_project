@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const qrCodes = () => {
+const QrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
   const [open, setOpen] = useState(false);
@@ -62,7 +62,7 @@ const qrCodes = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [db]);
 
   const classes = useStyles();
 
@@ -313,4 +313,4 @@ const qrCodes = () => {
   );
 };
 
-export default qrCodes;
+export default QrCodes;
