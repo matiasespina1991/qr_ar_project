@@ -1,9 +1,8 @@
 module.exports = {
-    distDir: 'out',
-    // images: {
-    //   loader: 'akamai',
-    //   path: '',
-    // },
+    distDir: 'build',
+    images: {
+      unoptimized: true
+    },
     // exportPathMap: async function () {
     //   return {
     //     '/': { page: '/' }, // Example mapping for the root page
