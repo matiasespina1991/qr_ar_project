@@ -3,7 +3,6 @@ import Head from "next/head";
 import "../styles/style.scss";
 
 function MyApp({ Component, pageProps }) {
-  const isARView = Component.isARView;
 
   return (
     <>
@@ -16,13 +15,11 @@ function MyApp({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {isARView ? (
-        <Component {...pageProps} />
-      ) : (
+     
         <FullLayout>
           <Component {...pageProps} />
         </FullLayout>
-      )}
+     
     </>
   );
 }
