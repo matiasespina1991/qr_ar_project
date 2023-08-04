@@ -15,7 +15,6 @@ import ReactDOMServer from 'react-dom/server';
 import QRCode from 'qrcode.react';
 import Script from "next/script";
 
-
 const useStyles = makeStyles((theme) => ({
   dropzone: {
     color: '#7a7a7a',
