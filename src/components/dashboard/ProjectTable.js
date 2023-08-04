@@ -84,7 +84,9 @@ const ProjectTables = ({ qrCodesList }) => {
                     </div> */}
 
                     <div className="d-flex align-items-center p-4">
-                      <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
+                      <a href={tdata.qrUrl} target="_blank" rel="noopener noreferrer">
+                        <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
+                      </a>
                     </div>
                   </td>
                   <td>
