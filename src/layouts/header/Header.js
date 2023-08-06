@@ -16,15 +16,24 @@ import {
 } from "reactstrap";
 import LogoWhite from "../../assets/images/logos/amplelogowhite.svg";
 import user1 from "../../../public/images/profile/user-profile-pic.jpg";
+import { useRouter } from 'next/router';
+
 
 const Header = ({ showMobmenu }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
+  const router = useRouter();
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const Handletoggle = () => {
     setIsOpen(!isOpen);
   };
+
+  if ('no-header' in router.query) {
+    // Si está presente, retorna un fragmento vacío
+    return <></>;
+  }
 
   return (
     <Navbar color="secondary" dark expand="md">
