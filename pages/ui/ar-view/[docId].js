@@ -67,6 +67,9 @@ function ARView() {
             style={{width: '100%', height: '600px'}}
             ios-src={usdzUrl}
           >
+            <div class="progress-bar hide" slot="progress-bar">
+                <div class="update-bar"></div>
+            </div>
             <button slot="ar-button" id="ar-button">
               View in your space
             </button>
