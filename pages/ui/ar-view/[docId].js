@@ -59,9 +59,9 @@ function ARView() {
             autoplay
             camera-controls
             shadow-intensity="1" 
-            camera-orbit="0deg 75deg 125.1m" 
-            camera-target="0.000004306m 26m 30.42m"
-            field-of-view="30deg"
+            // camera-orbit="0deg 75deg 125.1m" 
+            // camera-target="0.000004306m 26m 30.42m"
+            // field-of-view="30deg"
             ar 
             ar-modes="scene-viewer webxr quick-look" 
             style={{width: '100%', height: '600px'}}
