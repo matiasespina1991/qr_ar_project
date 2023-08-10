@@ -75,7 +75,7 @@ function ARView() {
         
               <button slot="ar-button" id="ar-button" style={{position: 'absolute', bottom: '2rem', right: '2rem', display:'inline-flex', alignItems: 'center'}}>
                 <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space">
-                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
+                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
 
                     <rect id="Bounding_Box" x="0" y="0" fill="none" width="24" height="24"></rect>
                     <g id="Art_layer">
@@ -91,7 +91,7 @@ function ARView() {
                     </g>
                   </svg>
                 </a>
-                <p style={{marginBottom: '0px', marginLeft: '0.3rem', fontSize: '0.9rem'}}>
+                <p style={{marginBottom: '0px', marginLeft: '0.3rem', color: 'black'}}>
                   View in your space
                 </p>
               </button>
