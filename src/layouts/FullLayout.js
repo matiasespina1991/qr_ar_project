@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from 'next/router'; // Import useRouter
 import { Container } from "reactstrap";
 import Header from "./header/Header";
 import Sidebar from "./sidebars/vertical/Sidebar";
@@ -8,6 +9,10 @@ const FullLayout = ({ children }) => {
   const showMobilemenu = () => {
     setOpen(!open);
   };
+
+  const router = useRouter(); // Use the useRouter hook
+  const { pathname } = router;
+  const isARView = pathname.startsWith('/ui/ar-view/'); // Check if the path starts with /ui/ar-view/
 
   return (
     <main>
@@ -27,7 +32,7 @@ const FullLayout = ({ children }) => {
           <Header showMobmenu={() => showMobilemenu()} />
 
           {/********Middle Content**********/}
-          <Container className="p-4 wrapper" fluid>
+          <Container className={isARView ? "wrapper" : "p-4 wrapper"} fluid> {/* Use condition here */}
             <div>{children}</div>
           </Container>
         </div>
