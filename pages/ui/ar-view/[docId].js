@@ -64,12 +64,13 @@ function ARView() {
            autoplay
            camera-controls
            shadow-intensity="1" 
-          //  {...(isInteriorModel ? { 'camera-orbit': '0deg 75deg 0m' } : {})}
+
+           {...(isInteriorModel ? { 'camera-orbit': '0deg 75deg 0m' } : {})}
            {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
            ar 
            ar-modes="scene-viewer webxr quick-look" 
            style={{width: '100%', height: '100%'}}
-           camera-target={`0m ${initialYPosition}m 0m`} 
+          //  camera-target={`0m ${initialYPosition}m 0m`} 
            ios-src={usdzUrl}
          >
                <button 
