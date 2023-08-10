@@ -167,7 +167,9 @@ const QrCodes = () => {
             qrUrl: "",
             modelPreviewImageUrl: modelPreviewImageUrl,
             modelUrl: downloadURL,
-            status: "paused"
+            status: "paused",
+            isInternalModel: false,
+            usdzUrl: null,
           };
           
           // First add the doc and get the docId
