@@ -65,7 +65,6 @@ function ARView() {
            camera-controls
            shadow-intensity="1" 
            {...(isInteriorModel ? { 'camera-orbit': '0deg 75deg 0m' } : {})}
-          //  {...(isInteriorModel ? { 'field-of-view': '30deg' } : {})}
            field-of-view="30deg"
            {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
            ar 
