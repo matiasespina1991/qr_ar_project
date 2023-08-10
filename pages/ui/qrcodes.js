@@ -168,7 +168,7 @@ const QrCodes = () => {
             modelPreviewImageUrl: modelPreviewImageUrl,
             modelUrl: downloadURL,
             status: "paused",
-            isInternalModel: false,
+            isInteriorModel: false,
             usdzUrl: null,
           };
           
