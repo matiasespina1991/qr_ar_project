@@ -58,11 +58,13 @@ const ProjectTables = ({ qrCodesList }) => {
           <Table className="text-nowrap mt-2 align-middle" borderless>
             <thead>
               <tr>
-                <th>QR Preview</th>
+                <th style={{ paddingLeft: '2.4rem' }}>QR Preview</th>
 
-                <th>Preview</th>
+                <th style={{ paddingLeft: '1.5rem' }}>Preview</th>
 
                 <th>Project Name</th>
+
+                <th>is Interior Model</th>
 
                 <th>Status</th>
 
@@ -105,21 +107,47 @@ const ProjectTables = ({ qrCodesList }) => {
                       'N/A'
                     }
                   </td>
-                  <td style={{width: '15rem'}}>
-                    {editing && editingId === tdata.id ? (
-                      <input
-                        ref={inputRef}
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(e, tdata.id)}
-                        style={{ width: `${editName.length + 1}ch` }}
-                        autoFocus
-                      />
-                    ) : (
-                      <span onClick={() => handleEdit(tdata.id, tdata.projectName)}>
-                        {tdata.projectName}
-                      </span>
-                    )}
+                  <td style={{maxWidth: '15rem'}}>
+                    <div>
+                      {editing && editingId === tdata.id ? (
+                        <input
+                          ref={inputRef}
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, tdata.id)}
+                          style={{ width: `${editName.length + 1}ch` }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span onClick={() => handleEdit(tdata.id, tdata.projectName)}>
+                          {tdata.projectName}
+                        </span>
+                      )}
+                      {
+                        tdata._debug_comments && (
+                          <div style={{ 
+                            maxWidth: '100%', // This can be adjusted based on your requirements
+                            wordWrap: 'break-word' // This allows the text to break onto the next line
+                          }}>
+                            <p style={{ fontSize: 13, color: 'grey', textWrap: 'wrap' }}>
+                              ( {tdata._debug_comments} )
+                            </p>
+                          </div>
+                        )
+                      }
+
+
+                    </div>
+                    
+                  </td>
+                  <td>
+                    <div style={{paddingLeft: '2.4rem'}}>
+                      {tdata.isInteriorModel === true ? (
+                        <span className="p-2 bg-success rounded-circle d-inline-block ms-3" />
+                      ) : tdata.isInteriorModel === false ? (
+                        <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
+                      ) : ({})}
+                    </div>
                   </td>
                   <td>
                     {tdata.status === "pending" ? (
