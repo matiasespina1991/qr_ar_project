@@ -78,7 +78,7 @@ function ARView() {
              id="ar-button" 
              style={{
               position: 'absolute', 
-              bottom: '5rem', 
+              bottom: '4rem', 
               left: '50%', 
               transform: 'translateX(-50%)', 
               display:'inline-flex', 
