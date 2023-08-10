@@ -52,6 +52,8 @@ function ARView() {
       <div>
         <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
 
+   
+
              
 
         {modelUrl ? (
@@ -68,12 +70,12 @@ function ARView() {
            style={{width: '100%', height: '100%'}}
            ios-src={usdzUrl}
          >
-           <button 
+               <button 
              slot="ar-button" 
              id="ar-button" 
              style={{
               position: 'absolute', 
-              bottom: '4rem', 
+              bottom: '5rem', 
               left: '50%', 
               transform: 'translateX(-50%)', 
               display:'inline-flex', 
@@ -82,10 +84,10 @@ function ARView() {
               whiteSpace: 'nowrap' 
             }}
            >
-                <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space">
-                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
+                <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space" style={{transform: 'scale(0.8)'}}>
+                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
 
-                    <rect id="Bounding_Box" x="0" y="0" fill="none" width="22" height="22"></rect>
+                    <rect id="Bounding_Box" x="0" y="0" fill="none" width="24" height="24"></rect>
                     <g id="Art_layer">
                       <path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"></path>
                       <path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"></path>
@@ -99,7 +101,7 @@ function ARView() {
                     </g>
                   </svg>
                 </a>
-                <p style={{marginBottom: '0px', marginLeft: '0.3rem', color: 'black'}}>
+                <p style={{marginBottom: '0px', marginLeft: '0.3rem', marginRight: '0.3rem', color: 'black'}}>
                   View in your space
                 </p>
                 </button>
