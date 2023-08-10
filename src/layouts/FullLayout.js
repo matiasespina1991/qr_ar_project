@@ -32,7 +32,7 @@ const FullLayout = ({ children }) => {
           <Header showMobmenu={() => showMobilemenu()} />
 
           {/********Middle Content**********/}
-          <Container style={{padding: '0 !importantxx'}} className={isARView ? "wrapper" : "p-4 wrapper"} fluid> {/* Use condition here */}
+          <Container style={{padding: '0 !important'}} className={isARView ? "wrapper" : "p-4 wrapper"} fluid> {/* Use condition here */}
             <div>{children}</div>
           </Container>
         </div>
