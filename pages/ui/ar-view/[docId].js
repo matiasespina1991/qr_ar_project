@@ -4,15 +4,15 @@ import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../../../src/config/firebaseConfig';
 import Head from 'next/head';
+import { FormatColorResetTwoTone } from '@material-ui/icons';
 
 function ARView() {
   const router = useRouter();
   const { docId } = router.query;
 
-  console.log('docId', docId);
-
   const [modelUrl, setModelUrl] = useState(null);
   const [usdzUrl, setUsdzUrl] = useState(null);
+  const [isInteriorModel, setIsInteriorModel] = useState(false);
 
   useEffect(() => {
     if (docId) {
@@ -20,14 +20,14 @@ function ARView() {
         const db = firestore;
         const docRef = doc(db, "qr_codes", docId);
         const docSnap = await getDoc(docRef);
-        console.log('docSnap:', docSnap);
 
         if (docSnap.exists()) {
-          console.log("Document data:", docSnap.data());
           const data = docSnap.data();
           setModelUrl(data.modelUrl);
           setUsdzUrl(data.usdzUrl);
+          setIsInteriorModel(data.isInteriorModel);
         } else {
+          console.log(`Error: The requested model doesn\'t seem to exist in the database. Please check that the id of the model you requested matches a document in the database. The requested model ID was: ${docId}`);
           // You can handle redirection here if the document doesn't exist or return a 404 status.
           router.replace('/404');
         }
@@ -59,7 +59,7 @@ function ARView() {
             autoplay
             camera-controls
             shadow-intensity="1" 
-            min-camera-orbit="auto auto 0m"
+            {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
             // camera-orbit="0deg 75deg 125.1m" 
             // camera-target="0.000004306m 26m 30.42m"
             // field-of-view="30deg"
