@@ -25,6 +25,10 @@ const Header = ({ showMobmenu }) => {
 
   const router = useRouter();
 
+  const { pathname } = router;
+  const isARView = pathname.startsWith('/ui/ar-view/'); // Check if the path starts with /ui/ar-view/
+
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const Handletoggle = () => {
     setIsOpen(!isOpen);
@@ -36,11 +40,14 @@ const Header = ({ showMobmenu }) => {
   }
 
   return (
-    <Navbar color="secondary" dark expand="md" style={{position: 'fixed',
-    width: '100%',
-    zIndex: '10',
-    backdropFilter: 'blur(21px)',
-    filter: 'opacity(0.5)'}}>
+    <Navbar 
+      color="secondary" 
+      dark 
+      expand="md" 
+      {
+        ...isARView && {style: {position: 'absolute', width: '100%', zIndex: '10', backdropFilter: 'blur(21px)', filter: 'opacity(0.5)'}}
+      }
+    >
       <div className="d-flex align-items-center">
         <NavbarBrand href="/" className="d-lg-none">
           <Image src={LogoWhite} alt="logo" />
