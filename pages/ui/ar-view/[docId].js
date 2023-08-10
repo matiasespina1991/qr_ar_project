@@ -70,8 +70,8 @@ function ARView() {
           >
 
 
-          <div style={{position: 'absolute', bottom: '1rem', right: '1rem'}}>
-            <button slot="ar-button" id="ar-button">
+        
+            <button slot="ar-button" id="ar-button" style={{position: 'absolute', bottom: '1rem', right: '1rem'}}>
                 <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space">
                 <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
 
@@ -91,7 +91,7 @@ function ARView() {
                 </a>
               View in your space
             </button>
-          </div>
+        
             {/* <button slot="ar-button" id="ar-button">
               View in your space
             </button> */}
