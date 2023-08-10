@@ -59,6 +59,7 @@ function ARView() {
             autoplay
             camera-controls
             shadow-intensity="1" 
+            minCameraOrbit="auto auto 0m"
             // camera-orbit="0deg 75deg 125.1m" 
             // camera-target="0.000004306m 26m 30.42m"
             // field-of-view="30deg"
