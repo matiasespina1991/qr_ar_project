@@ -44,9 +44,7 @@ const Header = ({ showMobmenu }) => {
       color="secondary" 
       dark 
       expand="md" 
-      {
-        ...isARView && {style: {position: 'absolute', width: '100%', zIndex: '10', backdropFilter: 'blur(21px)', filter: 'opacity(0.5)'}}
-      }
+      
     >
       <div className="d-flex align-items-center">
         <NavbarBrand href="/" className="d-lg-none">
