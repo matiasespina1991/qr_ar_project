@@ -64,7 +64,7 @@ function ARView() {
            autoplay
            camera-controls
            shadow-intensity="1" 
-           {...(isInteriorModel ? { 'camera-orbit': '0deg 75deg 0m' } : {})}
+          //  {...(isInteriorModel ? { 'camera-orbit': '0deg 75deg 0m' } : {})}
            {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
            ar 
            ar-modes="scene-viewer webxr quick-look" 
