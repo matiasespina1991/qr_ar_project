@@ -13,6 +13,7 @@ function ARView() {
   const [modelUrl, setModelUrl] = useState(null);
   const [usdzUrl, setUsdzUrl] = useState(null);
   const [isInteriorModel, setIsInteriorModel] = useState(false);
+  const [initialYPosition, setInitialYPosition] = useState(0);
 
   useEffect(() => {
     if (docId) {
@@ -25,6 +26,7 @@ function ARView() {
           const data = docSnap.data();
           setModelUrl(data.modelUrl);
           setUsdzUrl(data.usdzUrl);
+          setInitialYPosition(data.initialYPosition || 0);
           setIsInteriorModel(data.isInteriorModel);
         } else {
           console.log(`Error: The requested model doesn\'t seem to exist in the database. Please check that the id of the model you requested matches a document in the database. The requested model ID was: ${docId}`);
@@ -68,6 +70,7 @@ function ARView() {
            ar 
            ar-modes="scene-viewer webxr quick-look" 
            style={{width: '100%', height: '100%'}}
+           camera-target={`0m ${initialYPosition}m 0m`} 
            ios-src={usdzUrl}
          >
                <button 
