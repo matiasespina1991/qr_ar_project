@@ -55,29 +55,28 @@ function ARView() {
              
 
         {modelUrl ? (
-          <model-viewer 
-            src={modelUrl} 
-            auto-rotate 
-            autoplay
-            camera-controls
-            shadow-intensity="1" 
-            {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
-            // camera-orbit="0deg 75deg 125.1m" 
-            // camera-target="0.000004306m 26m 30.42m"
-            // field-of-view="30deg"
-            ar 
-            ar-modes="scene-viewer webxr quick-look" 
-            style={{width: '100%', height: '600px'}}
-            ios-src={usdzUrl}
-          >
-
-
-        
-              <button slot="ar-button" id="ar-button" style={{position: 'absolute', bottom: '2rem', right: '2rem', display:'inline-flex', alignItems: 'center'}}>
+         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px'}}>
+         <model-viewer 
+           src={modelUrl} 
+           auto-rotate 
+           autoplay
+           camera-controls
+           shadow-intensity="1" 
+           {...(isInteriorModel ? { 'min-camera-orbit': 'auto auto 0m' } : {})}
+           ar 
+           ar-modes="scene-viewer webxr quick-look" 
+           style={{width: '100%', height: '100%'}}
+           ios-src={usdzUrl}
+         >
+           <button 
+             slot="ar-button" 
+             id="ar-button" 
+             style={{position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', display:'inline-flex', alignItems: 'center'}}
+           >
                 <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space">
-                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
+                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 22 22" enableBackground="new 0 0 24 22">
 
-                    <rect id="Bounding_Box" x="0" y="0" fill="none" width="24" height="24"></rect>
+                    <rect id="Bounding_Box" x="0" y="0" fill="none" width="22" height="22"></rect>
                     <g id="Art_layer">
                       <path d="M3,4c0-0.55,0.45-1,1-1h2V1H4C2.35,1,1,2.35,1,4v2h2V4z"></path>
                       <path d="M20,3c0.55,0,1,0.45,1,1v2h2V4c0-1.65-1.35-3-3-3h-2v2H20z"></path>
@@ -94,12 +93,9 @@ function ARView() {
                 <p style={{marginBottom: '0px', marginLeft: '0.3rem', color: 'black'}}>
                   View in your space
                 </p>
-              </button>
-        
-            {/* <button slot="ar-button" id="ar-button">
-              View in your space
-            </button> */}
-          </model-viewer>
+                </button>
+  </model-viewer>
+</div>
         ) : (
           <p>Loading model...</p>
         )}
