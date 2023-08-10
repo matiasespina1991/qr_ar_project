@@ -83,7 +83,7 @@ function ARView() {
             }}
            >
                 <a id="default-ar-button" part="default-ar-button" className="fab" tabIndex="2" aria-label="View in your space">
-                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 22 22" enableBackground="new 0 0 24 22">
+                <svg version="1.1" id="view_x5F_in_x5F_AR_x5F_icon" x="0px" y="0px" width="22px" height="22px" viewBox="0 0 24 24" enableBackground="new 0 0 24 24">
 
                     <rect id="Bounding_Box" x="0" y="0" fill="none" width="22" height="22"></rect>
                     <g id="Art_layer">
