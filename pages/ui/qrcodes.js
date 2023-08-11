@@ -68,10 +68,16 @@ const QrCodes = () => {
   const onDrop = useCallback((acceptedFiles) => {
     setAcceptedFilesState(acceptedFiles)
     const fileObject = acceptedFiles[0];
+    console.log(fileObject)
     setFile(URL.createObjectURL(fileObject));
    
     
   }, []);
+
+  useEffect(() => {
+
+    console.log(file)
+  }, [file]);
 
   const captureModelScreenshot = async (modelViewer) => {
     const canvas = modelViewer.shadowRoot.querySelector('canvas');
@@ -124,13 +130,6 @@ const QrCodes = () => {
     setOpen(true);
   }
 
-  
-  // const generateQR = async (docId) => {
-  //   const qrCodeString = ReactDOMServer.renderToString(<QRCode value={`http://192.168.0.126:3000/ui/ar-view/${docId}`} size={256} includeMargin={true} />);
-  //   const dataUrl = `data:image/svg+xml;base64,${Buffer.from(qrCodeString).toString('base64')}`;
-  //   return dataUrl;
-  // };
-
   const dataURLtoFile = (dataurl, filename) => {
     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -163,10 +162,12 @@ const QrCodes = () => {
           console.log('File available at', downloadURL);
   
           const docData = {
+            _debug_comments: null,
             projectName: "Untitled 1",
             qrUrl: "",
             modelPreviewImageUrl: modelPreviewImageUrl,
             modelUrl: downloadURL,
+            glbUrl: downloadURL,
             status: "paused",
             isInteriorModel: false,
             usdzUrl: null,
@@ -179,29 +180,6 @@ const QrCodes = () => {
 
           await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
           
-          // Generate QR code
-          // const qrDataUrl = await generateQR(docId);
-          // const timestampInSeconds = Math.floor(Date.now() / 1000);
-          // const qrFile = dataURLtoFile(qrDataUrl, `qr-code-${timestampInSeconds}.png`);
-          // const qrStorageRef = ref(storage, `qrCodes/general/${qrFile.name}`);
-          // const qrUploadTask = uploadBytesResumable(qrStorageRef, qrFile);
-  
-          // qrUploadTask.on('state_changed', 
-          //   (snapshot) => {
-          //     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          //     console.log('QR upload is ' + progress + '% done');
-          //   }, 
-          //   (error) => {
-          //     console.log(error);
-          //   }, 
-          //   async () => {
-          //     const qrDownloadURL = await getDownloadURL(qrUploadTask.snapshot.ref);
-          //     console.log('QR code available at', qrDownloadURL);
-  
-          //     // Update the doc with the QRImageURL
-          //     await setDoc(doc(db, "qr_codes", docId), { qrImageUrl: qrDownloadURL }, { merge: true });
-          //   }
-          // );
         }
       );
     }
@@ -219,10 +197,6 @@ const QrCodes = () => {
       </Head>
 
       <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" strategy="beforeInteractive" />
-
-      {/* <Box style={{overflow: 'hidden', height: 0}}>
-        <QRCode id="qr-code-el" value="http://www.google.com" size={256} includeMargin={true} />
-      </Box> */}
 
       <Box className="d-flex justify-content-end p-3">
         <Button  
