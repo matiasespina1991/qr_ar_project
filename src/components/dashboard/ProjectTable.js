@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from "reactstrap";
-import { doc, updateDoc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 import QRCode from "qrcode.react";
 import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box, CircularProgress } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from '../../config/firebaseConfig'
-
 
 
 const useStyles = makeStyles((theme) => ({
@@ -66,12 +65,11 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const uploadFileToFirebase = async (files) => {
     for (const _file of files) {
-      console.log(file);
       const timestampInSeconds = Math.floor(Date.now() / 1000);
       const originalFileName = _file.name.split('.').slice(0, -1).join('.'); 
       const originalFileExtension = _file.name.split('.').pop(); 
       const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
-      const storageRef = ref(storage, `usdFiles/general/${newFileName}`);
+      const storageRef = ref(storage, `usdzFiles/general/${newFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, _file);
   
       uploadTask.on('state_changed', 
@@ -92,6 +90,11 @@ const ProjectTables = ({ qrCodesList }) => {
           };
           
           await setDoc(doc(db, "qr_codes", docId), { usdzUrl: downloadURL}, { merge: true });
+
+          setFile(null);
+          setDocId(null);
+          setAcceptedFilesState([]);
+          
           
         }
       );
@@ -136,6 +139,26 @@ const ProjectTables = ({ qrCodesList }) => {
       await uploadFileToFirebase(acceptedFilesState); // Upload the file
     }
     setOpenUsdzUpload(false); // Close the dialog
+  };
+  
+
+  const toggleInteriorModel = async (docId) =>  {
+
+    const modelDocRef = doc(db, "qr_codes", docId);
+
+    const modelDocSnapshot = await getDoc(modelDocRef);
+
+    if (modelDocSnapshot.exists) {
+      const modelData = modelDocSnapshot.data();
+      const currentIsModelInteriorValue = modelData.isInteriorModel;
+  
+      
+      await setDoc(doc(db, "qr_codes", docId), { isInteriorModel: !currentIsModelInteriorValue}, { merge: true }).catch((error) => {
+        console.log("Error getting document:", error);
+      });  
+    } else {
+      console.log("Error when setting model to interior model. Document of the model does not exist");
+    }
   };
   
   
@@ -302,12 +325,17 @@ const ProjectTables = ({ qrCodesList }) => {
                       </div>
                     </td>
                     <td>
-                      <div style={{paddingLeft: '2.4rem'}}>
-                        {tdata.isInteriorModel === true ? (
-                          <span className="p-2 bg-success rounded-circle d-inline-block ms-3" />
-                        ) : tdata.isInteriorModel === false ? (
-                          <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
-                        ) : ({})}
+                      <div style={{ paddingLeft: '2.4rem' }}>
+                        <button
+                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          onClick={() => toggleInteriorModel(tdata.id)}
+                        >
+                          {tdata.isInteriorModel === true ? (
+                            <span className="p-2 bg-success rounded-circle d-inline-block ms-3" />
+                          ) : tdata.isInteriorModel === false ? (
+                            <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
+                          ) : null}
+                        </button>
                       </div>
                     </td>
                     <td>

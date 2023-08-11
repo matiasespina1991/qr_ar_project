@@ -68,17 +68,11 @@ const QrCodes = () => {
   const onDrop = useCallback((acceptedFiles) => {
     setAcceptedFilesState(acceptedFiles)
     const fileObject = acceptedFiles[0];
-    console.log(fileObject)
     setFile(URL.createObjectURL(fileObject));
    
     
   }, []);
-
-  useEffect(() => {
-
-    console.log(file)
-  }, [file]);
-
+  
   const captureModelScreenshot = async (modelViewer) => {
     const canvas = modelViewer.shadowRoot.querySelector('canvas');
     if (!canvas) return;

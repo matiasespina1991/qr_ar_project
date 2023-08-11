@@ -10,7 +10,7 @@ function ARView() {
   const router = useRouter();
   const { docId } = router.query;
 
-  const [modelUrl, setModelUrl] = useState(null);
+  const [glbUrl, setGlbUrl] = useState(null);
   const [usdzUrl, setUsdzUrl] = useState(null);
   const [isInteriorModel, setIsInteriorModel] = useState(false);
   const [initialYPosition, setInitialYPosition] = useState(0);
@@ -24,7 +24,7 @@ function ARView() {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setModelUrl(data.modelUrl);
+          setGlbUrl(data.glbUrl);
           setUsdzUrl(data.usdzUrl);
           setInitialYPosition(data.initialYPosition || 0);
           setIsInteriorModel(data.isInteriorModel);
@@ -56,10 +56,10 @@ function ARView() {
 
    
 
-        {modelUrl ? (
+        {glbUrl ? (
          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px'}}>
          <model-viewer 
-           src={modelUrl} 
+           src={glbUrl} 
            auto-rotate 
            autoplay
            camera-controls
