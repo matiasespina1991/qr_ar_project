@@ -54,8 +54,6 @@ function ARView() {
       <div>
         <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
 
-   
-
         {glbUrl ? (
          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px'}}>
          <model-viewer 
@@ -78,7 +76,8 @@ function ARView() {
              id="ar-button" 
              style={{
               position: 'absolute', 
-              bottom: '4rem', 
+              top: '2rem', 
+              borderRadius: '18px',
               left: '50%', 
               transform: 'translateX(-50%)', 
               display:'inline-flex', 
