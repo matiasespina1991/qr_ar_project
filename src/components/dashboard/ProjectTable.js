@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from "reactstrap";
+// import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from "reactstrap";
 import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 import QRCode from "qrcode.react";
-import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box, CircularProgress } from "@material-ui/core";
+import { Card, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, makeStyles, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@material-ui/core";
+import {CloudUploadIcon} from '@material-ui/icons/CloudUpload';
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from '../../config/firebaseConfig'
 import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import IconButton from "@material-ui/core";
+import SettingsIcon from '@material-ui/icons/Settings';
 
-
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   dropzone: {
     color: '#7a7a7a',
     border: '2.5px dashed',
@@ -31,7 +34,9 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxWidth: '60rem',
   },
-}));
+}), {index: 1});
+
+
 
 const ProjectTables = ({ qrCodesList }) => {
   const [editing, setEditing] = useState(false);
@@ -126,7 +131,6 @@ const ProjectTables = ({ qrCodesList }) => {
     }
   };
   
-  
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -143,72 +147,58 @@ const ProjectTables = ({ qrCodesList }) => {
     };
   }, [inputRef]);
 
+  if(qrCodesList.length === 0) {
+    return ( <> </>);
+  }
+
 
   return (
     <>
-      <Card>
-        <CardBody>
-          <CardTitle tag="h5">QR Codes</CardTitle>
-          <CardSubtitle className="mb-2 text-muted" tag="h6">
+      <Card style={{width: '100%'}}>
+        <CardContent>
+          <Typography variant="h5">QR Codes</Typography>
+          <Typography variant="subtitle1" color="textSecondary">
             Overview of the QR codes
-          </CardSubtitle>
-          <div className="table-responsive">
-            <Table className="text-nowrap mt-2 align-middle" borderless>
-              <thead>
-                <tr>
-                  <th style={{ paddingLeft: '2.4rem' }}>QR Preview</th>
-
-                  <th style={{ paddingLeft: '1.5rem' }}>Preview</th>
-
-                  <th>Project Name</th>
-
-                  <th>Formats</th>
-
-                  <th>is Interior Model</th>
-
-                  <th>Status</th>
-
-                  <th>Settings</th>
-                </tr>
-              </thead>
-
-              <tbody>
+          </Typography>
+          <TableContainer>
+            <Table className="text-nowrap mt-2 align-middle">
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ paddingLeft: '2.4rem' }}>QR Preview</TableCell>
+                  <TableCell style={{ paddingLeft: '1.5rem' }}>Preview</TableCell>
+                  <TableCell>Project Name</TableCell>
+                  <TableCell>Formats</TableCell>
+                  <TableCell>is Interior Model</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Settings</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
 
                 {qrCodesList && qrCodesList.map((tdata, index) => (
-                  <tr key={tdata.id} className="border-top">
 
-                    <td>
-                      {/* <div className="d-flex align-items-center p-4">
-                        <img
-                          src={tdata.qrImageUrl}
-                          alt="avatar"
-                          width="100"
-                          height="100"
-                        />
-                      </div> */}
-
-                      <div className="d-flex align-items-center p-4">
+                  <TableRow key={tdata.id}>
+                    
+                    <TableCell>
+                      <Box display="flex" alignItems="center" p={4}>
                         <a href={tdata.qrUrl} target="_blank" rel="noopener noreferrer">
                           <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
                         </a>
-                      </div>
-                    </td>
-                    <td>
-                      {
-                        tdata.modelPreviewImageUrl ? 
+                      </Box>
+                    </TableCell>
+
+                    <TableCell>
+                      {tdata.modelPreviewImageUrl ? 
                         <img 
-                          style={{objectFit: 'cover',
-                          objectPosition: 'center center',
-                          width: '6rem',
-                          height: '6rem'}}
+                          style={{objectFit: 'cover', objectPosition: 'center center', width: '6rem', height: '6rem'}}
                           src={tdata.modelPreviewImageUrl}
                         />
-                        :
-                        'N/A'
+                        : 'N/A'
                       }
-                    </td>
-                    <td style={{maxWidth: '15rem'}}>
-                      <div>
+                    </TableCell>
+
+                    <TableCell style={{maxWidth: '15rem'}}>
+                      <Box style={{whiteSpace: 'break-spaces'}}>
                         {editing && editingId === tdata.id ? (
                           <input
                             ref={inputRef}
@@ -219,31 +209,28 @@ const ProjectTables = ({ qrCodesList }) => {
                             autoFocus
                           />
                         ) : (
-                          <span onClick={() => handleEdit(tdata.id, tdata.projectName)}>
+                          <Typography component="span" onClick={() => handleEdit(tdata.id, tdata.projectName)}>
                             {tdata.projectName}
-                          </span>
+                          </Typography>
                         )}
-                        {
-                          tdata._debug_comments && (
-                            <div style={{ 
-                              maxWidth: '100%', // This can be adjusted based on your requirements
-                              wordWrap: 'break-word' // This allows the text to break onto the next line
-                            }}>
-                              <p style={{ fontSize: 13, color: 'grey', textWrap: 'wrap' }}>
-                                ( {tdata._debug_comments} )
-                              </p>
-                            </div>
-                          )
-                        }
+                        {tdata._debug_comments && (
+                          <Box style={{ 
+            
+                            whiteSpace: 'break-spaces',
+                          }}>
+                            <Typography variant="body2" color="textSecondary" component="div" 
+                            >
+                              ( {tdata._debug_comments} )
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </TableCell>
 
-
-                      </div>
-                      
-                    </td>
-                    <td>
-                      <div style={{display: 'inline-flex', flexDirection: 'column', transform: 'scale(0.9)'}}>
-                        <div style={{display: 'inline-flex', marginLeft: '0.63rem'}}>
-                          <p style={{marginBottom: 0, display: 'content'}}>
+                    <TableCell>
+                      <Box display="inline-flex" flexDirection="column" transform="scale(0.9)">
+                        <Box display="inline-flex" marginLeft="1.13rem">
+                          <Typography style={{marginBottom: 0}}>
                             glb
                             <span 
                               style={{
@@ -254,63 +241,58 @@ const ProjectTables = ({ qrCodesList }) => {
                               }} 
                               className={`${tdata.glbUrl ? 'bg-success': 'bg-danger'} rounded-circle d-inline-block`}
                             />
-                          </p>
-                        </div>
-
-                        <div style={{display: 'inline-flex', alignItems: 'center'}}>
-                          <Button onClick={() => handleClickUsdzUpload(tdata.id)} style={{background: 'transparent', border: 'none', padding: 'unset', color: '#000000db'}}>
-                            <div style={{ display: 'inline-flex' }}>
-                              <p style={{ marginBottom: 0, display: 'content' }}>
+                          </Typography>
+                        </Box>
+                        <Box display="inline-flex" alignItems="center">
+                          <Button onClick={() => handleClickUsdzUpload(tdata.id)} style={{background: 'transparent', border: 'none', padding: 'unset', color: '#000000db', textTransform: 'none'}}>
+                            <Box display="inline-flex">
+                              <Typography style={{marginBottom: 0}}>
                                 usdz
                                 <span
                                   style={{
                                     padding: '0.35rem',
                                     marginLeft: '0.35rem',
                                     position: 'relative',
-                                    top: '0.8px'
+                                    top: '0.8px',
+                                    backgroundColor: tdata.usdzUrl ? '#0AB7AF' : '#f44336'
                                   }}
                                   className={`${tdata.usdzUrl ? 'bg-success' : 'bg-danger'} rounded-circle d-inline-block`}
                                 />
-                              </p>
-                            </div>
+                              </Typography>
+                            </Box>
                           </Button>
-                  
-                          {
-                            tdata.id == docId && progress ?
-                            (
-                              <CircularProgress variant="determinate" style={{marginLeft: 2.5}} size={11} thickness={9}  value={progress} color='primary' />
-                            )
-                            :
-                            (
-                              <></>
-                            )
-                          }
-                        </div>
 
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ paddingLeft: '2.4rem' }}>
-                        <button
-                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          {tdata.id === docId && progress ? (
+                            <CircularProgress variant="determinate" style={{marginLeft: 2.5}} size={11} thickness={9}  value={progress} color='primary' />
+                          ) : null}
+                        </Box>
+                      </Box>
+                    </TableCell>
+
+                    <TableCell>
+                      <Box style={{ paddingLeft: '2.4rem' }}>
+                        <Button
+                          style={{ background: 'none', padding: 0 }}
                           onClick={() => toggleInteriorModel(tdata.id)}
                         >
                           {tdata.isInteriorModel === true ? (
-                            <span className="p-2 bg-success rounded-circle d-inline-block ms-3" />
+                            <FiberManualRecordIcon style={{color: '#0AB7AF'}} />
+
                           ) : tdata.isInteriorModel === false ? (
-                            <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
+                            <FiberManualRecordIcon style={{color: '#f44336'}} />
                           ) : null}
-                        </button>
-                      </div>
-                    </td>
-                    <td>
+                        </Button>
+                      </Box>
+                    </TableCell>
+
+                    <TableCell>
                       {tdata.status === "pending" ? (
-                        <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
+                        <FiberManualRecordIcon color="secondary" />
                       ) : tdata.status === "holt" ? (
-                        <span className="p-2 bg-warning rounded-circle d-inline-block ms-3" />
+                        <FiberManualRecordIcon color="warning" />
                       ) : (
-                        <div style={{display: 'inline-flex'}}>
-                          <p style={{marginBottom: 0, display: 'content'}}>
+                        <Box display="inline-flex">
+                          <Typography style={{marginBottom: 0}}>
                             Live
                             <span 
                               style={{
@@ -321,29 +303,32 @@ const ProjectTables = ({ qrCodesList }) => {
                               }} 
                               className="bg-danger rounded-circle d-inline-block"
                             />
-                          </p>
-                        </div>
-                        )}
-                    </td>
+                          </Typography>
+                        </Box>
+                      )}
+                    </TableCell>
 
-                    <td>
-                      <h5 style={{
+                    <TableCell>
+                      <Box style={{
                         top: '0.3rem',
                         position: 'relative',
                         marginLeft: '1.2rem'
                       }}>
-                        <i style={{}} className="bi bi-gear-fill"></i>
-                      </h5>
-                    </td>
-                  </tr>
+                        <SettingsIcon />
+                      </Box>
+                    </TableCell> 
+
+                  </TableRow>
                 ))}
-              </tbody>
+
+              </TableBody>
             </Table>
-          </div>
-        </CardBody>
+          </TableContainer>
+        </CardContent>
       </Card>
-      <Box>
-        <Dialog open={openUsdzUpload} onClose={handleCloseUsdzUpload} classes={{ paper: classes.dialogPaper }}>
+
+
+      <Dialog open={openUsdzUpload} onClose={handleCloseUsdzUpload} classes={{ paper: classes.dialogPaper }}>
           <DialogTitle>Upload Model</DialogTitle>
 
           {file ? (
@@ -377,9 +362,15 @@ const ProjectTables = ({ qrCodesList }) => {
             }
           </DialogActions>
         </Dialog>
-      </Box>
     </>
   );
+  
+
+
+
+
+
+
 };
 
 export default ProjectTables;

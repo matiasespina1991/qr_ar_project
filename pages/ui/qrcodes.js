@@ -1,17 +1,46 @@
 import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
-import { Row, Button } from "reactstrap";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
-import { doc,setDoc, addDoc, collection, onSnapshot, query, getFirestore } from "firebase/firestore";
+import { collection, onSnapshot, query, getFirestore } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
-import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box } from "@material-ui/core";
+import { CircularProgress, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, Fab , Box } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
-import { CircularProgress } from '@material-ui/core';
 import Script from "next/script";
-import { useStyles } from "../../styles/styles";
-import { dataURLtoFile } from "../../src/utils/utils";
+import { makeStyles } from '@material-ui/core/styles';
+import { dataURLtoFile } from "../../src/functions/dataURLtoFile";
+import AddIcon from '@material-ui/icons/Add';
 import { uploadFileToFirebase } from "../../src/functions/uploadFileToFirebase";
+
+export const useStyles = makeStyles((theme) => ({
+  dropzone: {
+    color: '#7a7a7a',
+    border: '2.5px dashed',
+    height: '100%',
+    margin: '0rem 2rem 1rem 2rem',
+    padding: '16px',
+    textAlign: 'center',
+    display: 'flex',
+    borderColor: '#C7C7C7',
+    backgroundColor: '#F0F0F0',
+    flexDirection: 'column',
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  dialogPaper: {
+    height: '100%',
+    maxHeight: '30rem',
+    width: '100%',
+    maxWidth: '60rem',
+  },
+  fabPrimary: {
+    '&:hover': {
+      backgroundColor: '#F8F9FA !important', 
+    },
+  },
+}));
+
 
 const QrCodes = () => {
 
@@ -98,57 +127,12 @@ const QrCodes = () => {
   const handleClickAddModel = () => {
     setOpenModelUploadDialog(true);
   }
-
-
-
-  // const uploadFileToFirebase = async (files, modelPreviewImageUrl) => {
-  //   for (const file of files) {
-  //     const timestampInSeconds = Math.floor(Date.now() / 1000);
-  //     const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
-  //     const originalFileExtension = file.name.split('.').pop(); 
-  //     const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
-  //     const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
-  //     const uploadTask = uploadBytesResumable(storageRef, file);
-  
-  //     uploadTask.on('state_changed', 
-  //       (snapshot) => {
-  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //         setFileUploadProgress(progress);
-  //         console.log('Upload is ' + progress + '% done');
-  //       }, 
-  //       (error) => {
-  //         console.log(error);
-  //       }, 
-  //       async () => {
-  //         const glbDownloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-  //         console.log('File available at', glbDownloadURL);
-  
-  //         const docData = {
-  //           _debug_comments: null,
-  //           projectName: "Untitled 1",
-  //           qrUrl: "",
-  //           modelPreviewImageUrl: modelPreviewImageUrl,
-  //           glbUrl: glbDownloadURL,
-  //           status: "paused",
-  //           isInteriorModel: false,
-  //           usdzUrl: null,
-  //         };
-          
-  //         // First add the doc and get the docId
-  //         const docRef = await addDoc(collection(db, "qr_codes"), docData);
-  //         const docId = docRef.id;
-  //         const _qrUrl = `http://qr-ar-project.vercel.app/ui/ar-view/${docId}`
-
-  //         await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
-          
-  //       }
-  //     );
-  //   }
-  // };
   
   
   return (
-    <Box>
+    <Box style={{display: 'flex', alignItems: 'flex-end',
+    flexDirection: 'column',
+    marginLeft: '12rem'}}>
 
     
       <Head>
@@ -159,24 +143,23 @@ const QrCodes = () => {
 
       <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" strategy="beforeInteractive" />
 
-      <Box className="d-flex justify-content-end p-3">
-        <Button  
+      
+        <Fab
           disabled={fileUploadProgress > 0 && fileUploadProgress < 100}
+          aria-label="add"
+          onClick={() => handleClickAddModel()}
+          className={classes.fabPrimary}
           style={{
-            backgroundColor: (fileUploadProgress > 0 && fileUploadProgress < 100) ? '#cbcbcb' : 'white',
+            backgroundColor: (fileUploadProgress > 0 && fileUploadProgress < 100) ? '#cbcbcb !important' : 'white',
             opacity: '0.8',
-            color: (fileUploadProgress > 0 && fileUploadProgress < 100) ? 'white' : 'black',
-            borderColor: 'transparent',
-            borderRadius: '50%',
-            height: '3rem !important',
+            height: '3.5rem !important',
+            margin: '1.5rem !important',
             minWidth: '3rem !important',
             boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
-            position: 'relative'
+            position: 'relative',
           }}
-          onClick={() => handleClickAddModel()}
         >
-          <i
-            className="bi bi-plus"
+          <AddIcon
             style={{
               fontSize: '1.5rem',
               position: 'relative',
@@ -184,13 +167,12 @@ const QrCodes = () => {
               left: '0.5px',
               opacity: '0.9'
             }}  
-          ></i>
+          />
           { fileUploadProgress > 0 && fileUploadProgress < 100 && 
             <CircularProgress 
               variant="determinate"
               value={fileUploadProgress}
               size={64}
-            
               style={{
                 position: 'absolute',
                 top: '50%',
@@ -201,13 +183,11 @@ const QrCodes = () => {
               }}
             /> 
           }
-        </Button>
-      </Box>
-
+        </Fab>
     
-      <Row>
-        <ProjectTables qrCodesList={qrCodesList} />
-      </Row>
+      
+      <ProjectTables qrCodesList={qrCodesList} />
+      
 
       <Box>
         <Dialog open={openModelUploadDialog} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >

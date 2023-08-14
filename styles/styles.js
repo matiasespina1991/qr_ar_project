@@ -22,4 +22,11 @@ export const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxWidth: '60rem',
   },
+  fabPrimary: {
+    color: 'black',
+    backgroundColor: 'white !important',
+    '&:hover': {
+      backgroundColor: '#F8F9FA !important', 
+    },
+  },
 }));
