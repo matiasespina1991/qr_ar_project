@@ -1,5 +1,5 @@
 module.exports = {
-  outDir: 'build',
+  // outDir: 'build',
   images: {
     unoptimized: true
   }

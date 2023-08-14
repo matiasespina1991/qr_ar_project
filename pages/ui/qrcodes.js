@@ -2,50 +2,24 @@ import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import { Row, Button } from "reactstrap";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
-import { firestore } from "../../src/config/firebaseConfig";
-import getQrCodes from "../../src/functions/getQrCodes";
 import { doc,setDoc, addDoc, collection, onSnapshot, query, getFirestore } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
 import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Box } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { CircularProgress } from '@material-ui/core';
-import { toPng } from 'html-to-image';
-import ReactDOMServer from 'react-dom/server';
-import QRCode from 'qrcode.react';
 import Script from "next/script";
-
-const useStyles = makeStyles((theme) => ({
-  dropzone: {
-    color: '#7a7a7a',
-    border: '2.5px dashed',
-    height: '100%',
-    margin: '0rem 2rem 1rem 2rem',
-    padding: '16px',
-    textAlign: 'center',
-    display: 'flex',
-    borderColor: '#C7C7C7',
-    backgroundColor: '#F0F0F0',
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  dialogPaper: {
-    height: '100%',
-    maxHeight: '30rem',
-    width: '100%',
-    maxWidth: '60rem',
-  },
-}));
+import { useStyles } from "../../styles/styles";
+import { dataURLtoFile } from "../../src/utils/utils";
+import { uploadFileToFirebase } from "../../src/functions/uploadFileToFirebase";
 
 const QrCodes = () => {
 
   const [qrCodesList, setQrCodesList] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [file, setFile] = useState(null);
+  const [openModelUploadDialog, setOpenModelUploadDialog] = useState(false);
+  const [glbFile, setGlbFile] = useState(null);
   const [acceptedFilesState, setAcceptedFilesState] = useState([]);
-  const [progress, setProgress] = useState(0);
+  const [fileUploadProgress, setFileUploadProgress] = useState(0);
 
   const db = getFirestore();
 
@@ -65,14 +39,14 @@ const QrCodes = () => {
 
   const classes = useStyles();
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onFileDropToDropzone = useCallback((acceptedFiles) => {
     setAcceptedFilesState(acceptedFiles)
-    const fileObject = acceptedFiles[0];
-    setFile(URL.createObjectURL(fileObject));
+    const _glbFile = acceptedFiles[0];
+    setGlbFile(URL.createObjectURL(_glbFile));
    
     
   }, []);
-  
+
   const captureModelScreenshot = async (modelViewer) => {
     const canvas = modelViewer.shadowRoot.querySelector('canvas');
     if (!canvas) return;
@@ -83,7 +57,7 @@ const QrCodes = () => {
   };  
 
   const handleSubmit = async () => {  
-    setOpen(false);
+    setOpenModelUploadDialog(false);
     const modelViewer = document.getElementById('modelViewer');
     if (!modelViewer) return;
     
@@ -106,78 +80,71 @@ const QrCodes = () => {
           const modelPreviewDownloadURL = await getDownloadURL(modelPreviewUploadTask.snapshot.ref);
           console.log('Model preview available at', modelPreviewDownloadURL);
           
-          uploadFileToFirebase(acceptedFilesState, modelPreviewDownloadURL);
+          uploadFileToFirebase(acceptedFilesState, modelPreviewDownloadURL, storage, db, 'glbFiles', (progress) => {setFileUploadProgress(progress)}, {userId: "general"})
+         
       }
     );
-    setFile(null);
+    setGlbFile(null);
   }
   
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: '.glb' });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop: onFileDropToDropzone, accept: '.glb' });
 
   const handleClose = () => {
-    setFile(null);
-    setOpen(false);
+    setGlbFile(null);
+    setOpenModelUploadDialog(false);
   }
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleClickAddModel = () => {
+    setOpenModelUploadDialog(true);
   }
 
-  const dataURLtoFile = (dataurl, filename) => {
-    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, {type:mime});
-  };
 
-  const uploadFileToFirebase = async (files, modelPreviewImageUrl) => {
-    for (const file of files) {
-      const timestampInSeconds = Math.floor(Date.now() / 1000);
-      const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
-      const originalFileExtension = file.name.split('.').pop(); 
-      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
-      const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-  
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(progress);
-          console.log('Upload is ' + progress + '% done');
-        }, 
-        (error) => {
-          console.log(error);
-        }, 
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log('File available at', downloadURL);
-  
-          const docData = {
-            _debug_comments: null,
-            projectName: "Untitled 1",
-            qrUrl: "",
-            modelPreviewImageUrl: modelPreviewImageUrl,
-            modelUrl: downloadURL,
-            glbUrl: downloadURL,
-            status: "paused",
-            isInteriorModel: false,
-            usdzUrl: null,
-          };
-          
-          // First add the doc and get the docId
-          const docRef = await addDoc(collection(db, "qr_codes"), docData);
-          const docId = docRef.id;
-          const _qrUrl = `http://qr-ar-project.vercel.app/ui/ar-view/${docId}`
 
-          await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
+  // const uploadFileToFirebase = async (files, modelPreviewImageUrl) => {
+  //   for (const file of files) {
+  //     const timestampInSeconds = Math.floor(Date.now() / 1000);
+  //     const originalFileName = file.name.split('.').slice(0, -1).join('.'); 
+  //     const originalFileExtension = file.name.split('.').pop(); 
+  //     const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
+  //     const storageRef = ref(storage, `glbFiles/general/${newFileName}`);
+  //     const uploadTask = uploadBytesResumable(storageRef, file);
+  
+  //     uploadTask.on('state_changed', 
+  //       (snapshot) => {
+  //         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //         setFileUploadProgress(progress);
+  //         console.log('Upload is ' + progress + '% done');
+  //       }, 
+  //       (error) => {
+  //         console.log(error);
+  //       }, 
+  //       async () => {
+  //         const glbDownloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+  //         console.log('File available at', glbDownloadURL);
+  
+  //         const docData = {
+  //           _debug_comments: null,
+  //           projectName: "Untitled 1",
+  //           qrUrl: "",
+  //           modelPreviewImageUrl: modelPreviewImageUrl,
+  //           glbUrl: glbDownloadURL,
+  //           status: "paused",
+  //           isInteriorModel: false,
+  //           usdzUrl: null,
+  //         };
           
-        }
-      );
-    }
-  };
+  //         // First add the doc and get the docId
+  //         const docRef = await addDoc(collection(db, "qr_codes"), docData);
+  //         const docId = docRef.id;
+  //         const _qrUrl = `http://qr-ar-project.vercel.app/ui/ar-view/${docId}`
+
+  //         await setDoc(doc(db, "qr_codes", docId), { qrUrl: _qrUrl}, { merge: true });
+          
+  //       }
+  //     );
+  //   }
+  // };
   
   
   return (
@@ -194,11 +161,11 @@ const QrCodes = () => {
 
       <Box className="d-flex justify-content-end p-3">
         <Button  
-          disabled={progress > 0 && progress < 100}
+          disabled={fileUploadProgress > 0 && fileUploadProgress < 100}
           style={{
-            backgroundColor: (progress > 0 && progress < 100) ? '#cbcbcb' : 'white',
+            backgroundColor: (fileUploadProgress > 0 && fileUploadProgress < 100) ? '#cbcbcb' : 'white',
             opacity: '0.8',
-            color: (progress > 0 && progress < 100) ? 'white' : 'black',
+            color: (fileUploadProgress > 0 && fileUploadProgress < 100) ? 'white' : 'black',
             borderColor: 'transparent',
             borderRadius: '50%',
             height: '3rem !important',
@@ -206,7 +173,7 @@ const QrCodes = () => {
             boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.05)',
             position: 'relative'
           }}
-          onClick={() => handleOpen()}
+          onClick={() => handleClickAddModel()}
         >
           <i
             className="bi bi-plus"
@@ -218,10 +185,10 @@ const QrCodes = () => {
               opacity: '0.9'
             }}  
           ></i>
-          { progress > 0 && progress < 100 && 
+          { fileUploadProgress > 0 && fileUploadProgress < 100 && 
             <CircularProgress 
               variant="determinate"
-              value={progress}
+              value={fileUploadProgress}
               size={64}
             
               style={{
@@ -243,16 +210,16 @@ const QrCodes = () => {
       </Row>
 
       <Box>
-        <Dialog open={open} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >
+        <Dialog open={openModelUploadDialog} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >
           <DialogTitle>Upload Model</DialogTitle>
 
-          {file ? (
+          {glbFile ? (
             <>
              <Box 
                 id="modelViewerContainer"
                 style={{height: '23rem'}}
                 dangerouslySetInnerHTML={{
-                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${file}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
+                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${glbFile}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
                 }}
               />
             </>
@@ -270,7 +237,7 @@ const QrCodes = () => {
               Cancel
             </MuiButton>
             {
-              file &&
+              glbFile &&
               <MuiButton onClick={handleSubmit} color="primary">
                 submit
               </MuiButton>

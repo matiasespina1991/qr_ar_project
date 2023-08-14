@@ -6,6 +6,7 @@ import { Dialog, DialogTitle, DialogActions, Button as MuiButton, makeStyles, Bo
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from '../../config/firebaseConfig'
+import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -63,43 +64,7 @@ const ProjectTables = ({ qrCodesList }) => {
   const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: '.usdz' });
 
 
-  const uploadFileToFirebase = async (files) => {
-    for (const _file of files) {
-      const timestampInSeconds = Math.floor(Date.now() / 1000);
-      const originalFileName = _file.name.split('.').slice(0, -1).join('.'); 
-      const originalFileExtension = _file.name.split('.').pop(); 
-      const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
-      const storageRef = ref(storage, `usdzFiles/general/${newFileName}`);
-      const uploadTask = uploadBytesResumable(storageRef, _file);
-  
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(progress);
-          console.log('Upload is ' + progress + '% done');
-        }, 
-        (error) => {
-          console.log(error);
-        }, 
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log('File available at', downloadURL);
-  
-          const docData = {
-            usdzUrl:  downloadURL,
-          };
-          
-          await setDoc(doc(db, "qr_codes", docId), { usdzUrl: downloadURL}, { merge: true });
 
-          setFile(null);
-          setDocId(null);
-          setAcceptedFilesState([]);
-          
-          
-        }
-      );
-    }
-  };
 
 
   const handleEdit = (id, name) => {
@@ -136,7 +101,7 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const handleSubmitUsdzUpload = async () => {
     if (file) {
-      await uploadFileToFirebase(acceptedFilesState); // Upload the file
+      await uploadUsdzToFirebase(acceptedFilesState, storage, db, (progress) => setProgress(progress), { userId: 'general' });
     }
     setOpenUsdzUpload(false); // Close the dialog
   };
