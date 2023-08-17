@@ -250,7 +250,7 @@ const ProjectTables = ({ qrCodesList }) => {
                                 usdz
                                 <span
                                   style={{
-                                    padding: '0.35rem',
+                                    padding: '0.39rem',
                                     marginLeft: '0.35rem',
                                     position: 'relative',
                                     top: '0.8px',

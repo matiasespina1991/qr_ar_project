@@ -1,5 +1,4 @@
 import React from "react";
-import { useRouter } from 'next/router';
 import { Container, Drawer, CssBaseline } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Header from "./header/Header";
@@ -13,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
   },
   contentArea: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    // padding: theme.spacing(3),
   },
   drawer: {
     width: drawerWidth,
@@ -34,34 +33,33 @@ const FullLayout = ({ children }) => {
     setOpen(!open);
   };
 
-  const router = useRouter();
-  const { pathname } = router;
-  const isARView = pathname.startsWith('/ui/ar-view/');
+
 
   return (
-    <main style={{ overflow: isARView ? 'hidden' : 'auto' }}>
+    <main>
       <div className={classes.root}>
         <CssBaseline />
         {/******** Sidebar **********/}
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-        >
-          <Sidebar showMobilemenu={() => showMobilemenu()} />
-        </Drawer>
-        {/********Content Area**********/}
-        <div className={classes.contentArea}>
-          {/********header**********/}
-          <Header showMobmenu={() => showMobilemenu()} />
+          <Drawer
+            className={classes.drawer}
+            variant="permanent"
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            <Sidebar showMobilemenu={() => showMobilemenu()} />
+          </Drawer>
+       
+          <div className={classes.contentArea}>
+            {/********header**********/}
+            <Header showMobmenu={() => showMobilemenu()} />
+  
+            {/********Middle Content**********/}
+            <Container className={classes.containerStyle} maxWidth="xl">
+              <div>{children}</div>
+            </Container>
+          </div>
 
-          {/********Middle Content**********/}
-          <Container className={classes.containerStyle} maxWidth="xl">
-            <div>{children}</div>
-          </Container>
-        </div>
       </div>
     </main>
   );

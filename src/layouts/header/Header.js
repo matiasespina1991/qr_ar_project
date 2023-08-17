@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import logout from "../../functions/logout";
 import Image from "next/image";
 import {
   Navbar,
@@ -26,7 +26,6 @@ const Header = ({ showMobmenu }) => {
   const router = useRouter();
 
   const { pathname } = router;
-  const isARView = pathname.startsWith('/ui/ar-view/'); // Check if the path starts with /ui/ar-view/
 
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
@@ -35,7 +34,6 @@ const Header = ({ showMobmenu }) => {
   };
 
   if ('no-header' in router.query) {
-    // Si está presente, retorna un fragmento vacío
     return <></>;
   }
 
@@ -112,7 +110,7 @@ const Header = ({ showMobmenu }) => {
             <DropdownItem divider />
             <DropdownItem>My Balance</DropdownItem>
             <DropdownItem>Inbox</DropdownItem>
-            <DropdownItem>Logout</DropdownItem>
+            <DropdownItem onClick={() => logout()}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Collapse>
