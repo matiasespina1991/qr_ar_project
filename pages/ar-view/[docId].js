@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '../../../src/config/firebaseConfig';
+import { firestore } from '../../src/config/firebaseConfig';
 import Head from 'next/head';
 import { FormatColorResetTwoTone } from '@material-ui/icons';
 

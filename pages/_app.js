@@ -1,47 +1,28 @@
-import FullLayout from "../src/layouts/FullLayout";
+
 import '../styles/style.scss'
+import { AuthProvider } from "../src/hook/auth";
+import { SnackbarProvider } from 'notistack';
+import AuthStateChanged from '../src/layouts/AuthStateChanged';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <FullLayout>
-      <Component {...pageProps} />
-    </FullLayout>
+    <SnackbarProvider 
+      anchorOrigin={{
+        vertical: 'top', 
+        horizontal: 'right' 
+      }}
+      maxSnack={2} 
+      preventDuplicate
+    >
+      <AuthProvider> 
+        <AuthStateChanged>
+          <Component {...pageProps} />
+        </AuthStateChanged>
+      </AuthProvider>
+    </SnackbarProvider>
   );
 }
 
 export default MyApp;
 
 
-
-
-
-// import FullLayout from "../src/layouts/FullLayout";
-// import Head from "next/head";
-// import "../styles/style.scss";
-
-// function MyApp({ Component, pageProps }) {
-//   const isARView = Component.isARView;
-
-//   return (
-//     <>
-//       <Head>
-//         <title>QR AR Dashboard </title>
-//         <meta
-//           name="description"
-//           content="QR AR Dashboard "
-//         />
-//         <link rel="icon" href="/favicon.ico" />
-//       </Head>
-
-//       {isARView ? (
-//         <Component {...pageProps} />
-//       ) : (
-//         <FullLayout>
-//           <Component {...pageProps} />
-//         </FullLayout>
-//       )}
-//     </>
-//   );
-// }
-
-// export default MyApp;
