@@ -11,6 +11,7 @@ import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import IconButton from "@material-ui/core";
 import SettingsIcon from '@material-ui/icons/Settings';
+import useAuth from "../../hook/auth";
 
 export const useStyles = makeStyles((theme) => ({
   dropzone: {
@@ -48,6 +49,8 @@ const ProjectTables = ({ qrCodesList }) => {
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [docId, setDocId] = useState(null); // To store the current doc id for the operation
+
+  const { user } = useAuth();
 
   const classes = useStyles();
 
@@ -95,7 +98,7 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const handleClickUsdzUpload = (id) => {
     setOpenUsdzUpload(true);
-    setDocId(id); // Store the doc id
+    setDocId(id); 
   };
 
 
@@ -106,7 +109,7 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const handleSubmitUsdzUpload = async () => {
     if (file) {
-      await uploadUsdzToFirebase(acceptedFilesState, storage, db, (progress) => setProgress(progress), { userId: 'general' });
+      await uploadUsdzToFirebase(acceptedFilesState, storage, db, (progress) => setProgress(progress), docId, {userId: user.uid, userEmail: user.email});
     }
     setOpenUsdzUpload(false); // Close the dialog
   };

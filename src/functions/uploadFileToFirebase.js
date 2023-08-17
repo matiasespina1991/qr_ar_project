@@ -57,13 +57,13 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
 
 
 
-  const uploadUsdzToFirebase = async (files, storage, db, onProgress, {userId = "general"}) => {
+  export const uploadUsdzToFirebase = async (files, storage, db, onProgress, docId, {userId = "general", userEmail = '_'}) => {
     for (const _file of files) {
       const timestampInSeconds = Math.floor(Date.now() / 1000);
       const originalFileName = _file.name.split('.').slice(0, -1).join('.'); 
       const originalFileExtension = _file.name.split('.').pop(); 
       const newFileName = `${originalFileName}-${timestampInSeconds}.${originalFileExtension}`; 
-      const storageRef = ref(storage, `usdzFiles/${userId}/${newFileName}`);
+      const storageRef = ref(storage, `usdzFiles/${userId}-${userEmail}/${newFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, _file);
   
       uploadTask.on('state_changed', 
