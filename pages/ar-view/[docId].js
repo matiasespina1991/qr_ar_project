@@ -52,10 +52,12 @@ function ARView() {
       </Head>
 
       <div>
-        <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
+        
 
         {glbUrl ? (
+          
          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px'}}>
+          <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
          <model-viewer 
            src={glbUrl} 
            auto-rotate 
