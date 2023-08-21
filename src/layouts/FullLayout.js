@@ -1,8 +1,9 @@
-import React from "react";
-import { Container, Drawer, CssBaseline } from '@material-ui/core';
+import React from 'react';
+import { Container, Drawer, CssBaseline, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Header from "./header/Header";
-import Sidebar from "./sidebars/vertical/Sidebar";
+import useMediaQuery from '@material-ui/core/useMediaQuery'; 
+import Header from './header/Header';
+import Sidebar from './sidebars/vertical/Sidebar';
 
 const drawerWidth = 240;
 
@@ -28,38 +29,46 @@ const useStyles = makeStyles((theme) => ({
 
 const FullLayout = ({ children }) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [open, setOpen] = React.useState(false);
+
   const showMobilemenu = () => {
     setOpen(!open);
   };
 
-
+  const handleDrawerClose = (event, reason) => {
+    if (reason === 'backdropClick') {
+      showMobilemenu();
+    }
+  };
 
   return (
     <main>
       <div className={classes.root}>
         <CssBaseline />
         {/******** Sidebar **********/}
-          <Drawer
-            className={classes.drawer}
-            variant="permanent"
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <Sidebar showMobilemenu={() => showMobilemenu()} />
-          </Drawer>
-       
-          <div className={classes.contentArea}>
-            {/********header**********/}
-            <Header showMobmenu={() => showMobilemenu()} />
-  
-            {/********Middle Content**********/}
-            <Container className={classes.containerStyle} maxWidth="xl">
-              <div>{children}</div>
-            </Container>
-          </div>
+        <Drawer
+          open={isMobile ? open : true} // Si es móvil, se controla con el estado; si no, siempre está abierto.
+          variant={isMobile ? 'temporary' : 'permanent'} // Variante temporal en móvil, permanente en otros tamaños.
+          className={classes.drawer}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+          onClose={handleDrawerClose}
+        >
+          <Sidebar showMobilemenu={() => showMobilemenu()} />
+        </Drawer>
 
+        <div className={classes.contentArea}>
+          {/********header**********/}
+          <Header showMobmenu={() => showMobilemenu()} />
+
+          {/********Middle Content**********/}
+          <Container className={classes.containerStyle} maxWidth="xl">
+            <div>{children}</div>
+          </Container>
+        </div>
       </div>
     </main>
   );
