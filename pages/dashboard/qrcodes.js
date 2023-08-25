@@ -1,49 +1,46 @@
 import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
-import { collection, doc, onSnapshot, query, getFirestore, getDoc, where, orderBy } from "firebase/firestore";
+import { collection, doc, onSnapshot, query, getFirestore, where, orderBy } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
-import { CircularProgress, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, Fab , Box } from "@material-ui/core";
+import { CircularProgress, Dialog, DialogTitle, DialogActions, Button as MuiButton, Fab, Box } from "@mui/material";
+import { styled } from '@mui/system';
 import { useDropzone } from "react-dropzone";
 import Script from "next/script";
-import { makeStyles } from '@material-ui/core/styles';
 import { dataURLtoFile } from "../../src/functions/dataURLtoFile";
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@mui/icons-material/Add';
 import { uploadFileToFirebase } from "../../src/functions/uploadFileToFirebase";
 import FullLayout from "../../src/layouts/FullLayout";
-import { withProtected } from '../../src/hook/route'
+import { withProtected } from '../../src/hook/route';
 import useAuth from "../../src/hook/auth";
 
-export const useStyles = makeStyles((theme) => ({
-  dropzone: {
-    color: '#7a7a7a',
-    border: '2.5px dashed',
-    height: '100%',
-    margin: '0rem 2rem 1rem 2rem',
-    padding: '16px',
-    textAlign: 'center',
-    display: 'flex',
-    borderColor: '#C7C7C7',
-    backgroundColor: '#F0F0F0',
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  dialogPaper: {
-    height: '100%',
-    maxHeight: '30rem',
-    width: '100%',
-    maxWidth: '60rem',
-  },
-  fabPrimary: {
-    '&:hover': {
-      backgroundColor: '#F8F9FA !important', 
-    },
-  },
-}));
+const StyledDropzone = styled('div')({
+  color: '#7a7a7a',
+  border: '2.5px dashed',
+  height: '100%',
+  margin: '0rem 2rem 1rem 2rem',
+  padding: '16px',
+  textAlign: 'center',
+  display: 'flex',
+  borderColor: '#C7C7C7',
+  backgroundColor: '#F0F0F0',
+  flexDirection: 'column',
+  alignContent: 'center',
+  justifyContent: 'center',
+  alignItems: 'center'
+});
 
+const StyledDialogPaper = styled(Dialog)({
+  height: '100%',
+  width: '100%',
+});
+
+const StyledFabPrimary = styled(Fab)({
+  '&:hover': {
+    backgroundColor: '#F8F9FA !important',
+  },
+});
 
 const QrCodes = () => {
 
@@ -106,8 +103,6 @@ const QrCodes = () => {
   }, [db, user.uid]);
   
   
-
-  const classes = useStyles();
 
   const onFileDropToDropzone = useCallback((acceptedFiles) => {
     setAcceptedFilesState(acceptedFiles)
@@ -190,11 +185,10 @@ const QrCodes = () => {
         <Box style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', margin: '3rem', padding: 0}}>
           
           <Box style={{marginBottom: '2rem'}}>
-            <Fab
+            <StyledFabPrimary
               disabled={fileUploadProgress > 0 && fileUploadProgress < 100}
               aria-label="add"
               onClick={() => handleClickAddModel()}
-              className={classes.fabPrimary}
               style={{
                 backgroundColor: (fileUploadProgress > 0 && fileUploadProgress < 100) ? '#cbcbcb !important' : 'white',
                 opacity: '0.8',
@@ -228,7 +222,7 @@ const QrCodes = () => {
                   }}
                 /> 
               }
-            </Fab>
+            </StyledFabPrimary>
           </Box>
         
           
@@ -236,7 +230,7 @@ const QrCodes = () => {
           
 
           <Box>
-            <Dialog open={openModelUploadDialog} onClose={handleClose} classes={{ paper: classes.dialogPaper }} >
+            <StyledDialogPaper open={openModelUploadDialog} onClose={handleClose} >
               <DialogTitle>Upload Model</DialogTitle>
 
             
@@ -260,11 +254,11 @@ const QrCodes = () => {
                 </>
               
               ) : (
-                  <Box {...getRootProps()} className={classes.dropzone}>
+                  <StyledDropzone {...getRootProps()}>
                     <input {...getInputProps()} />
                     <p>Drag and drop your 3D model in .glb format here, or click to select it.</p>
                     <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
-                  </Box>
+                  </StyledDropzone>
               ) }
 
               <DialogActions>
@@ -278,7 +272,7 @@ const QrCodes = () => {
                   </MuiButton>
                 }
               </DialogActions>
-            </Dialog>
+            </StyledDialogPaper>
           </Box>
         </Box>
       </FullLayout>
