@@ -28,7 +28,9 @@ const StyledDropzone = styled('div')({
   flexDirection: 'column',
   alignContent: 'center',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+  maxWidth: '40rem',
+  height: '15rem',
 });
 
 const StyledDialogPaper = styled(Dialog)({
@@ -230,36 +232,35 @@ const QrCodes = () => {
           
 
           <Box>
-            <StyledDialogPaper open={openModelUploadDialog} onClose={handleClose} >
+            <StyledDialogPaper maxWidth='md' open={openModelUploadDialog} onClose={handleClose} >
               <DialogTitle>Upload Model</DialogTitle>
 
             
 
-              {glbFile ? (
-                
-                <>
-                  {
-                    console.log('glbFile uploaded', glbFile)
-                  }
-                   <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
+              { 
+                glbFile ? 
+                (
+                  <>
+                    <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
 
-                   
-                <Box 
-                    id="modelViewerContainer"
-                    style={{height: '23rem'}}
-                    dangerouslySetInnerHTML={{
-                      __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${glbFile}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
-                    }}
-                  />
-                </>
-              
-              ) : (
+                    <Box 
+                      id="modelViewerContainer"
+                      style={{height: '23rem', width: '100%', margin: '0rem 2rem 1rem 2rem'}}
+                      dangerouslySetInnerHTML={{
+                        __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${glbFile}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
+                      }}
+                    />
+                  </>
+                ) 
+                  : 
+                (
                   <StyledDropzone {...getRootProps()}>
                     <input {...getInputProps()} />
                     <p>Drag and drop your 3D model in .glb format here, or click to select it.</p>
                     <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
                   </StyledDropzone>
-              ) }
+                ) 
+              }
 
               <DialogActions>
                 <MuiButton onClick={handleClose} color="primary">

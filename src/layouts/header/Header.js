@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Divider } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Divider, Box } from '@mui/material';
 import styled from '@emotion/styled';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -22,9 +22,17 @@ const HStack = styled.div`
 const MobileButton = styled(Button)`
   display: none;
 
-  @media (max-width: 991px) {
+  ${({ theme }) => theme.breakpoints.down('sm')} {
     display: block;
   }
+`;
+
+const MenuItemTitle = styled.div`
+  color: #828282;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 16px;
+  padding-right: 16px;
 `;
 
 const ProfileImage = styled(Image)`
@@ -32,6 +40,25 @@ const ProfileImage = styled(Image)`
   width: 30px;
   height: 30px;
 `;
+
+const headerMenuItems = [
+  // {
+  //   name: 'My Account',
+  //   path: '/',
+  // },
+  // {
+  //   name: 'Edit Profile',
+  //   path: '/',
+  // },
+  // {
+  //   name: 'My Balance',
+  //   path: '/',
+  // },
+  // {
+  //   name: 'Inbox',
+  //   path: '/',
+  // },
+];
 
 const Header = ({ showMobmenu }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -57,13 +84,33 @@ const Header = ({ showMobmenu }) => {
             <MenuIcon />
           </MobileButton>
         </FlexCenter>
+        <Box sx={{ flexGrow: 1}}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+            {headerMenuItems.length != 0 && headerMenuItems.map((item) => (
+
+              <Button
+                key={item.name}
+                sx={{
+                  color: pathname === item.path ? '#ffffff82' : 'white',
+                  '&:hover': {
+                    color: '#ffffff82',
+                  },
+                }}
+                >
+                {item.name}
+                </Button>
+            ))}
+
+          </Box>
+        </Box>
         <HStack>
           <IconButton color="secondary" onClick={handleMenuOpen}>
             <ProfileImage src={user1} alt="profile" />
           </IconButton>
         </HStack>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-          <div>Info</div>
+          <Box sx={{width: '10rem'}}></Box>
+          <MenuItemTitle>Info</MenuItemTitle>
           <Divider />
           <MenuItem>My Account</MenuItem>
           <MenuItem>Edit Profile</MenuItem>
