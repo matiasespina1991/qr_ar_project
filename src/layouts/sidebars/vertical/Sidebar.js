@@ -1,58 +1,32 @@
-import { Button, Nav, NavItem } from "reactstrap";
-import Logo from "../../logo/Logo";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
+import Logo from '../../logo/Logo';
+import { useRouter } from 'next/router';
+import { styled } from '@mui/system';
+
+const SidebarWrapper = styled('div')({
+  padding: '16px',
+});
+
+const LogoContainer = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const SidebarContainer = styled('div')({
+  paddingTop: '4',
+  marginTop: '2',
+});
 
 const navigation = [
-  // {
-  //   title: "Dashboard",
-  //   href: "/",
-  //   icon: "bi bi-speedometer2",
-  // },
   {
-    title: "QR Codes",
-    href: "/ui/qrcodes",
-    icon: "bi bi-qr-code-scan",
+    title: 'QR Codes',
+    href: '/ui/qrcodes',
+    icon: 'bi bi-qr-code-scan',
   },
-  // {
-  //   title: "Badges",
-  //   href: "/ui/badges",
-  //   icon: "bi bi-patch-check",
-  // },
-  // {
-  //   title: "Buttons",
-  //   href: "/ui/buttons",
-  //   icon: "bi bi-hdd-stack",
-  // },
-  // {
-  //   title: "Cards",
-  //   href: "/ui/cards",
-  //   icon: "bi bi-card-text",
-  // },
-  // {
-  //   title: "Grid",
-  //   href: "/ui/grid",
-  //   icon: "bi bi-columns",
-  // },
-  // {
-  //   title: "Table",
-  //   href: "/ui/tables",
-  //   icon: "bi bi-layout-split",
-  // },
-  // {
-  //   title: "Forms",
-  //   href: "/ui/forms",
-  //   icon: "bi bi-textarea-resize",
-  // },
-  // {
-  //   title: "Breadcrumbs",
-  //   href: "/ui/breadcrumbs",
-  //   icon: "bi bi-link",
-  // },
   {
-    title: "Settings",
-    href: "/about",
-    icon: "bi bi-sliders",
+    title: 'Settings',
+    href: '/about',
+    icon: 'bi bi-sliders',
   },
 ];
 
@@ -61,62 +35,36 @@ const Sidebar = ({ showMobilemenu }) => {
   const location = curl.pathname;
 
   return (
-    <div className="p-3">
-      <div className="d-flex align-items-center">
+    <SidebarWrapper>
+      <LogoContainer>
         <Logo />
-        {/* <Button
-          close
-          size="sm"
-          className="ms-auto d-lg-none"
-          onClick={showMobilemenu}
-        ></Button> */}
-      </div>
-      
+      </LogoContainer>
 
-
-
-      {/* <div className="pt-4 mt-2">
-        <Nav vertical className="sidebarNav">
+      <SidebarContainer>
+        <List>
           {navigation.map((navi, index) => (
-            <NavItem key={index} className="sidenav-bg">
-              <Link href={navi.href}>
-                <a
-                  className={
-                    location === navi.href
-                      ? "text-primary nav-link py-3"
-                      : "nav-link text-secondary py-3"
-                  }
-                >
+            <ListItem
+              key={index}
+              sx={{
+                py: 1,
+              }}
+            >
+              <ListItemButton
+                href={navi.href}
+                sx={{
+                  color: location === navi.href ? 'primary.main' : 'text.secondary',
+                }}
+              >
+                <ListItemIcon>
                   <i className={navi.icon}></i>
-                  <span className="ms-3 d-inline-block">{navi.title}</span>
-                </a>
-              </Link>
-            </NavItem>
+                </ListItemIcon>
+                <ListItemText primary={navi.title} />
+              </ListItemButton>
+            </ListItem>
           ))}
-    
-        </Nav>
-      </div> */}
-
-<div className="pt-4 mt-2">
-  <Nav vertical className="sidebarNav">
-    {navigation.map((navi, index) => (
-      <NavItem key={index} className="sidenav-bg">
-        <Link href={navi.href} className={
-              location === navi.href
-                ? "text-primary nav-link py-3"
-                : "nav-link text-secondary py-3"
-            }>
-          <i className={navi.icon}></i>
-          <span className="ms-3 d-inline-block">{navi.title}</span>
-        </Link>
-      </NavItem>
-    ))}
-  </Nav>
-</div>
-
-
-
-    </div>
+        </List>
+      </SidebarContainer>
+    </SidebarWrapper>
   );
 };
 
