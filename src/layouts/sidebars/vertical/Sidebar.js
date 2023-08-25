@@ -20,7 +20,7 @@ const SidebarContainer = styled('div')({
 const navigation = [
   {
     title: 'QR Codes',
-    href: '/ui/qrcodes',
+    href: '/dashboard/qrcodes',
     icon: 'bi bi-qr-code-scan',
   },
   {

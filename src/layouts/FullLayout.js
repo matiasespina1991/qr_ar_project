@@ -21,7 +21,7 @@ const DrawerStyled = styled(Drawer)({
 
 const ContentArea = styled('div')({
   flexGrow: 1,
-  padding: 0, // Aquí puedes ajustar el padding si es necesario
+  padding: 0,
 });
 
 const FullLayout = ({ children }) => {
