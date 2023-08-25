@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Avatar, Divider } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Divider } from '@mui/material';
 import styled from '@emotion/styled';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -25,6 +25,12 @@ const MobileButton = styled(Button)`
   @media (max-width: 991px) {
     display: block;
   }
+`;
+
+const ProfileImage = styled(Image)`
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
 `;
 
 const Header = ({ showMobmenu }) => {
@@ -53,7 +59,7 @@ const Header = ({ showMobmenu }) => {
         </FlexCenter>
         <HStack>
           <IconButton color="secondary" onClick={handleMenuOpen}>
-            <Avatar alt="profile" src={user1} />
+            <ProfileImage src={user1} alt="profile" />
           </IconButton>
         </HStack>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
