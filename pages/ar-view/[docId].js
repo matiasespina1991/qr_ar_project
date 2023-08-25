@@ -56,7 +56,7 @@ function ARView() {
 
         {glbUrl ? (
           
-         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px'}}>
+         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh'}}>
           <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" />
          <model-viewer 
            src={glbUrl} 

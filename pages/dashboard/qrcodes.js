@@ -29,7 +29,6 @@ const StyledDropzone = styled('div')({
   alignContent: 'center',
   justifyContent: 'center',
   alignItems: 'center',
-  maxWidth: '40rem',
   height: '15rem',
 });
 
@@ -181,8 +180,6 @@ const QrCodes = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* <Script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module" strategy="beforeInteractive" /> */}
-
       <FullLayout>
         <Box style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', margin: '3rem', padding: 0}}>
           
@@ -232,10 +229,8 @@ const QrCodes = () => {
           
 
           <Box>
-            <StyledDialogPaper maxWidth='md' open={openModelUploadDialog} onClose={handleClose} >
+            <StyledDialogPaper open={openModelUploadDialog} onClose={handleClose} >
               <DialogTitle>Upload Model</DialogTitle>
-
-            
 
               { 
                 glbFile ? 
@@ -245,7 +240,7 @@ const QrCodes = () => {
 
                     <Box 
                       id="modelViewerContainer"
-                      style={{height: '23rem', width: '100%', margin: '0rem 2rem 1rem 2rem'}}
+                      style={{height: '23rem', width: '33rem', margin: '0rem 2rem 1rem 2rem'}}
                       dangerouslySetInnerHTML={{
                         __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" src="${glbFile}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
                       }}

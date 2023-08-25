@@ -3,13 +3,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 import QRCode from "qrcode.react";
 import { Card, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, makeStyles, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@material-ui/core";
-import {CloudUploadIcon} from '@material-ui/icons/CloudUpload';
 import { useDropzone } from "react-dropzone";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from '../../config/firebaseConfig'
 import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import IconButton from "@material-ui/core";
 import SettingsIcon from '@material-ui/icons/Settings';
 import useAuth from "../../hook/auth";
 
@@ -56,12 +53,20 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const db = getFirestore();
 
-  const onDrop = useCallback((acceptedFiles) => {
-    setAcceptedFilesState(acceptedFiles)
+  const onDrop = useCallback(async (acceptedFiles) => {
+    setAcceptedFilesState(acceptedFiles);
     const fileObject = acceptedFiles[0];
     setFile(URL.createObjectURL(fileObject));
     
-  }, []);
+    if (fileObject) {
+      await uploadUsdzToFirebase([fileObject], storage, db, (progress) => setProgress(progress), docId, { userId: user.uid, userEmail: user.email });
+    }
+    setOpenUsdzUpload(false);
+    setFile(null);
+    setProgress(0); 
+  
+  }, [db, docId, storage, user.email, user.uid]);
+  
 
   useEffect(() => {
     if(progress === 100) {
@@ -107,13 +112,6 @@ const ProjectTables = ({ qrCodesList }) => {
   };
   
 
-  const handleSubmitUsdzUpload = async () => {
-    if (file) {
-      await uploadUsdzToFirebase(acceptedFilesState, storage, db, (progress) => setProgress(progress), docId, {userId: user.uid, userEmail: user.email});
-    }
-    setOpenUsdzUpload(false); // Close the dialog
-  };
-  
 
   const toggleInteriorModel = async (docId) =>  {
 
@@ -357,12 +355,12 @@ const ProjectTables = ({ qrCodesList }) => {
             <MuiButton onClick={handleCloseUsdzUpload} color="primary">
               Cancel
             </MuiButton>
-            {
+            {/* {
               file &&
               <MuiButton onClick={handleSubmitUsdzUpload} color="primary">
                 Submit
               </MuiButton>
-            }
+            } */}
           </DialogActions>
         </Dialog>
     </>
