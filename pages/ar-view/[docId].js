@@ -49,7 +49,6 @@ function ARView({ modelId, glbUrl, usdzUrl, initialYPosition, isInteriorModel })
     const updateViewCount = async () => {
       if (modelId) {
         const docRef = doc(firestore, "models", modelId);
-
         await updateDoc(docRef, {
           "views.total": increment(1),
           "views.lastViewed": serverTimestamp(),
@@ -58,7 +57,7 @@ function ARView({ modelId, glbUrl, usdzUrl, initialYPosition, isInteriorModel })
     };
 
     updateViewCount();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
