@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
-import { collection, doc, getDoc, updateDoc, onSnapshot, query, getFirestore, where, orderBy, limit } from "firebase/firestore";
+import { collection, doc, getDoc, updateDoc, onSnapshot, query, getFirestore, where, orderBy, limit, getDocs, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
 import { CircularProgress, Dialog, DialogTitle, DialogActions, Button as MuiButton, Fab, Box, Typography, Button } from "@mui/material";
@@ -16,6 +16,8 @@ import { withProtected } from '../../src/hook/route';
 import useAuth from "../../src/hook/auth";
 import { purgeOrphanModelReferences } from "../../src/functions/dev_functions/purgeOrphanModelsReferences";
 import { useSnackbar } from 'notistack';
+
+
 
 const StyledDropzone = styled('div')({
   color: '#7a7a7a',
@@ -190,10 +192,6 @@ const QrCodes = () => {
     setOpenModelUploadDialog(true);
   }
 
-
-
-
-  
   
   
   return (
@@ -207,11 +205,6 @@ const QrCodes = () => {
       <FullLayout>
         <Box style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', margin: '3rem', padding: 0}}>
 
-          <Button 
-            onClick={() => purgeOrphanModelReferences()}
-          >
-            Fix uploaded models
-          </Button>
           
           <Box style={{marginBottom: '2rem'}}>
             <StyledFabPrimary
