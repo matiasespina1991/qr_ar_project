@@ -106,7 +106,7 @@ const { getRootProps, getInputProps } = useDropzone({
   const handleSave = async (id) => {
     const db = getFirestore();
     const docRef = doc(db, "models", id);
-    await updateDoc(docRef, { projectName: editName });
+    await updateDoc(docRef, { modelName: editName });
     setEditing(false);
     setEditingId(null);
     setEditName("");
@@ -206,10 +206,10 @@ const { getRootProps, getInputProps } = useDropzone({
                     </TableCell>
 
                     <TableCell>
-                      {tdata.modelPreviewImageUrl ? 
+                      {tdata.modelPreviewImgUrl ? 
                         <img 
                           style={{objectFit: 'cover', objectPosition: 'center center', width: '6rem', height: '6rem'}}
-                          src={tdata.modelPreviewImageUrl}
+                          src={tdata.modelPreviewImgUrl}
                         />
                         : 'N/A'
                       }
@@ -227,8 +227,8 @@ const { getRootProps, getInputProps } = useDropzone({
                             autoFocus
                           />
                         ) : (
-                          <Typography component="span" onClick={() => handleEdit(tdata.id, tdata.projectName)}>
-                            {tdata.projectName}
+                          <Typography component="span" onClick={() => handleEdit(tdata.id, tdata.modelName)}>
+                            {tdata.modelName}
                           </Typography>
                         )}
                         {tdata._debug_comments && (
@@ -257,7 +257,7 @@ const { getRootProps, getInputProps } = useDropzone({
                                 position: 'relative',
                                 top: '0.8px'
                               }} 
-                              className={`${tdata.glbUrl ? 'bg-success': 'bg-danger'} rounded-circle d-inline-block`}
+                              className={`${tdata.files.glb.url ? 'bg-success': 'bg-danger'} rounded-circle d-inline-block`}
                             />
                           </Typography>
                         </Box>
@@ -272,9 +272,9 @@ const { getRootProps, getInputProps } = useDropzone({
                                     marginLeft: '0.35rem',
                                     position: 'relative',
                                     top: '0.8px',
-                                    backgroundColor: tdata.usdzUrl ? '#0AB7AF' : '#f44336'
+                                    backgroundColor: tdata.files.usdz.url ? '#0AB7AF' : '#f44336'
                                   }}
-                                  className={`${tdata.usdzUrl ? 'bg-success' : 'bg-danger'} rounded-circle d-inline-block`}
+                                  className={`${tdata.files.usdz.url ? 'bg-success' : 'bg-danger'} rounded-circle d-inline-block`}
                                 />
                               </Typography>
                             </Box>

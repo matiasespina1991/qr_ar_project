@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/router';
-import { doc, getDoc } from 'firebase/firestore';
+import { updateDoc, doc, serverTimestamp, getDoc,  increment  } from 'firebase/firestore';
 import { firestore } from '../../src/config/firebaseConfig';
 import Head from 'next/head';
+
 
 export async function getServerSideProps(context) {
   const docId = context.query.docId;
@@ -16,8 +17,9 @@ export async function getServerSideProps(context) {
       const data = docSnap.data();
       return {
         props: {
-          glbUrl: data.glbUrl,
-          usdzUrl: data.usdzUrl,
+          modelId: docId,
+          glbUrl: data.files.glb.url,
+          usdzUrl: data.files.usdz.url,
           initialYPosition: data.initialYPosition || 0,
           isInteriorModel: data.isInteriorModel,
         },
@@ -34,13 +36,29 @@ export async function getServerSideProps(context) {
   };
 }
 
-function ARView({ glbUrl, usdzUrl, initialYPosition, isInteriorModel }) {
+function ARView({ modelId, glbUrl, usdzUrl, initialYPosition, isInteriorModel }) {
   const router = useRouter();
+
 
   if (!glbUrl) {
     router.replace('/404');
     return null;
   }
+
+  useEffect(() => {
+    const updateViewCount = async () => {
+      if (modelId) {
+        const docRef = doc(firestore, "models", modelId);
+
+        await updateDoc(docRef, {
+          "views.total": increment(1),
+          "views.lastViewed": serverTimestamp(),
+        });
+      }
+    };
+
+    updateViewCount();
+  }, []);
 
   return (
     <>

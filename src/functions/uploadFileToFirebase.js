@@ -1,4 +1,4 @@
-import { addDoc, collection, setDoc, doc, arrayUnion, serverTimestamp  } from "firebase/firestore";
+import { addDoc, collection, setDoc, doc, arrayUnion, serverTimestamp, updateDoc  } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 
@@ -56,11 +56,11 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
           }
         };
 
-        const docRef = await addDoc(collection(db, "qr_codes"), docData);
+        const docRef = await addDoc(collection(db, "models"), docData);
         const modelId = docRef.id;
         const _qrUrl = `http://qr-ar-project.vercel.app/ar-view/${modelId}`
 
-        await setDoc(doc(db, "qr_codes", modelId), { qrUrl: _qrUrl, id: modelId}, { merge: true });
+        await setDoc(doc(db, "models", modelId), { qrUrl: _qrUrl, id: modelId}, { merge: true });
         await setDoc(doc(db, "users", userId), { uploadedModels: arrayUnion(modelId)}, { merge: true });
 
 //    
@@ -92,10 +92,15 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log('File available at', downloadURL);
-          
-          await setDoc(doc(db, "qr_codes", docId), { "files.usdz": { "url": downloadURL, "fileSize": fileSize } }, { merge: true });
-          
-          
+
+          const docRef = doc(db, "models", docId);
+
+
+          await updateDoc(docRef, {
+            "files.usdz.url": downloadURL,
+            "files.usdz.fileSize": fileSize
+          });
+        
         }
       );
     }

@@ -83,12 +83,17 @@ const QrCodes = () => {
           const q = query(
             collection(db, "models"),
             where("id", "in", uploadedModels),
-            orderBy("_createdAt", "desc"),
+            orderBy("createdAt", "desc"),
             limit(30)
           );
+
+      
   
           unsubscribeToModels = onSnapshot(q, (snapshot) => {
             let models = [];
+
+           
+
   
             snapshot.forEach((doc) => {
               models.push({ ...doc.data(), id: doc.id });
@@ -194,7 +199,6 @@ const QrCodes = () => {
     setOpenModelUploadDialog(true);
   }
 
-  
   
   return (
     <>
