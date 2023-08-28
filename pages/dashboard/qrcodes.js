@@ -14,9 +14,7 @@ import { uploadFileToFirebase } from "../../src/functions/uploadFileToFirebase";
 import FullLayout from "../../src/layouts/FullLayout";
 import { withProtected } from '../../src/hook/route';
 import useAuth from "../../src/hook/auth";
-import { purgeOrphanModelReferences } from "../../src/functions/dev_functions/purgeOrphanModelsReferences";
 import { useSnackbar } from 'notistack';
-
 
 
 const StyledDropzone = styled(Box)({
@@ -49,9 +47,10 @@ const StyledFabPrimary = styled(Fab)({
 
 const QrCodes = () => {
 
-  const [qrCodesList, setQrCodesList] = useState([]);
+  const [modelsList, setModelsList] = useState([]);
   const [openModelUploadDialog, setOpenModelUploadDialog] = useState(false);
   const [glbFile, setGlbFile] = useState(null);
+  const [glbFileSize, setGlbFileSize] = useState(null);
   const [acceptedFilesState, setAcceptedFilesState] = useState([]);
   const [fileUploadProgress, setFileUploadProgress] = useState(0);
 
@@ -64,7 +63,7 @@ const QrCodes = () => {
 
   useEffect(() => {
     let unsubscribeUser;
-    let unsubscribeQrCodes;
+    let unsubscribeToModels;
   
     async function fetchData() {
       try {
@@ -73,28 +72,28 @@ const QrCodes = () => {
           const uploadedModels = snapshot.data()?.uploadedModels || [];
 
           if(uploadedModels.length === 0) {
-            setQrCodesList([]);
+            setModelsList([]);
             return;
           }
   
-          if (unsubscribeQrCodes) {
-            unsubscribeQrCodes(); 
+          if (unsubscribeToModels) {
+            unsubscribeToModels(); 
           }
           
           const q = query(
-            collection(db, "qr_codes"),
+            collection(db, "models"),
             where("id", "in", uploadedModels),
             orderBy("_createdAt", "desc"),
             limit(30)
           );
   
-          unsubscribeQrCodes = onSnapshot(q, (snapshot) => {
-            let qrCodes = [];
+          unsubscribeToModels = onSnapshot(q, (snapshot) => {
+            let models = [];
   
             snapshot.forEach((doc) => {
-              qrCodes.push({ ...doc.data(), id: doc.id });
+              models.push({ ...doc.data(), id: doc.id });
             });
-            setQrCodesList(qrCodes);
+            setModelsList(models);
           });
         });
       } catch (error) {
@@ -106,7 +105,7 @@ const QrCodes = () => {
   
     return () => {
       if (unsubscribeUser) unsubscribeUser();
-      if (unsubscribeQrCodes) unsubscribeQrCodes();
+      if (unsubscribeToModels) unsubscribeToModels();
     };
   }, [db, user.uid]);
   
@@ -128,6 +127,9 @@ const QrCodes = () => {
 
     setAcceptedFilesState(acceptedFiles)
     const _glbFile = acceptedFiles[0];
+    const fileSize = _glbFile.size; 
+
+    setGlbFileSize(fileSize);
     
     setGlbFile(URL.createObjectURL(_glbFile));
   
@@ -171,7 +173,7 @@ const QrCodes = () => {
           const modelPreviewDownloadURL = await getDownloadURL(modelPreviewUploadTask.snapshot.ref);
           console.log('Model preview available at', modelPreviewDownloadURL);
           
-          uploadFileToFirebase(acceptedFilesState, modelPreviewDownloadURL, storage, db, 'glbFiles', (progress) => {setFileUploadProgress(progress)}, {userId: user.uid, userEmail: user.email})
+          uploadFileToFirebase(acceptedFilesState, modelPreviewDownloadURL, storage, db, 'glbFiles', (progress) => {setFileUploadProgress(progress)}, {userId: user.uid, userEmail: user.email, fileSize: glbFileSize})
          
       }
     );
@@ -259,7 +261,7 @@ const QrCodes = () => {
           </Box>
         
           
-          <ProjectTables qrCodesList={qrCodesList} />
+          <ProjectTables modelsList={modelsList} />
           
 
           <Box>

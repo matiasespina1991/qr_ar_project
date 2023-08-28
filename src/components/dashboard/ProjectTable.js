@@ -38,7 +38,7 @@ const DialogPaper = styled(Dialog)(({ theme }) => ({
 
 
 
-const ProjectTables = ({ qrCodesList }) => {
+const ProjectTables = ({ modelsList: modelsList }) => {
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
@@ -72,10 +72,11 @@ const ProjectTables = ({ qrCodesList }) => {
 
     setAcceptedFilesState(acceptedFiles);
     const fileObject = acceptedFiles[0];
+    const fileSize = fileObject.size; 
     setFile(URL.createObjectURL(fileObject));
     
     if (fileObject) {
-      await uploadUsdzToFirebase([fileObject], storage, db, (progress) => setProgress(progress), docId, { userId: user.uid, userEmail: user.email });
+      await uploadUsdzToFirebase([fileObject], storage, db, (progress) => setProgress(progress), docId, { userId: user.uid, userEmail: user.email, fileSize: fileSize });
     }
     setOpenUsdzUpload(false);
     setFile(null);
@@ -104,7 +105,7 @@ const { getRootProps, getInputProps } = useDropzone({
 
   const handleSave = async (id) => {
     const db = getFirestore();
-    const docRef = doc(db, "qr_codes", id);
+    const docRef = doc(db, "models", id);
     await updateDoc(docRef, { projectName: editName });
     setEditing(false);
     setEditingId(null);
@@ -131,7 +132,7 @@ const { getRootProps, getInputProps } = useDropzone({
 
   const toggleInteriorModel = async (docId) =>  {
 
-    const modelDocRef = doc(db, "qr_codes", docId);
+    const modelDocRef = doc(db, "models", docId);
 
     const modelDocSnapshot = await getDoc(modelDocRef);
 
@@ -140,7 +141,7 @@ const { getRootProps, getInputProps } = useDropzone({
       const currentIsModelInteriorValue = modelData.isInteriorModel;
   
       
-      await setDoc(doc(db, "qr_codes", docId), { isInteriorModel: !currentIsModelInteriorValue}, { merge: true }).catch((error) => {
+      await setDoc(doc(db, "models", docId), { isInteriorModel: !currentIsModelInteriorValue}, { merge: true }).catch((error) => {
         console.log("Error getting document:", error);
       });  
     } else {
@@ -164,7 +165,7 @@ const { getRootProps, getInputProps } = useDropzone({
     };
   }, [inputRef]);
 
-  if(qrCodesList.length === 0) {
+  if(modelsList.length === 0) {
     return ( <> </>);
   }
 
@@ -192,7 +193,7 @@ const { getRootProps, getInputProps } = useDropzone({
               </TableHead>
               <TableBody>
 
-                {qrCodesList && qrCodesList.map((tdata, index) => (
+                {modelsList && modelsList.map((tdata, index) => (
 
                   <TableRow key={tdata.id}>
                     

@@ -9,7 +9,7 @@ export async function getServerSideProps(context) {
   const docId = context.query.docId;
 
   if (docId) {
-    const docRef = doc(firestore, "qr_codes", docId);
+    const docRef = doc(firestore, "models", docId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {

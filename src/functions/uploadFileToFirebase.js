@@ -3,7 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 
 
-export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage, db, path, onProgress, {userId = "general", userEmail = '_'}) => {
+export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage, db, path, onProgress, {userId = "general", userEmail = '_', fileSize = null}) => {
 
 
   for (const file of files) {
@@ -14,6 +14,7 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
     const storageRef = ref(storage, `${path}/${userId}-${userEmail}/${newFileName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
+    
     uploadTask.on('state_changed',
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -29,19 +30,32 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
 
         const docData = {
           _debug_comments: null,
-          _createdAt: serverTimestamp(),
-          _updatedAt: serverTimestamp(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
           uploadedBy: userId,
-          projectName: "Untitled Project",
+          files: {
+            glb: {
+              url: glbDownloadURL,
+              fileSize: fileSize
+            },
+            usdz: {
+              url: null,
+              fileSize: null
+            }
+          },
+          modelName: "Untitled Model",
+          modelPreviewImgUrl: modelPreviewImageUrl,
           qrUrl: "",
-          modelPreviewImageUrl: modelPreviewImageUrl,
-          glbUrl: glbDownloadURL,
-          status: "paused",
           isInteriorModel: false,
-          usdzUrl: null,
+          status: "live",
+          description: "",
+          tags: [],
+          views: {
+            total: 0,
+            lastViewed: null
+          }
         };
 
-        // First add the doc and get the docId
         const docRef = await addDoc(collection(db, "qr_codes"), docData);
         const modelId = docRef.id;
         const _qrUrl = `http://qr-ar-project.vercel.app/ar-view/${modelId}`
@@ -57,7 +71,7 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
 
 
 
-  export const uploadUsdzToFirebase = async (files, storage, db, onProgress, docId, {userId = "general", userEmail = '_'}) => {
+  export const uploadUsdzToFirebase = async (files, storage, db, onProgress, docId, {userId = "general", userEmail = '_', fileSize = null}) => {
     for (const _file of files) {
       const timestampInSeconds = Math.floor(Date.now() / 1000);
       const originalFileName = _file.name.split('.').slice(0, -1).join('.'); 
@@ -78,14 +92,8 @@ export const uploadFileToFirebase = async (files, modelPreviewImageUrl, storage,
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log('File available at', downloadURL);
-  
-          const docData = {
-            usdzUrl:  downloadURL,
-          };
           
-          await setDoc(doc(db, "qr_codes", docId), { usdzUrl: downloadURL}, { merge: true });
-
-        
+          await setDoc(doc(db, "qr_codes", docId), { "files.usdz": { "url": downloadURL, "fileSize": fileSize } }, { merge: true });
           
           
         }
