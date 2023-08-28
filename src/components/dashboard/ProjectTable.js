@@ -2,38 +2,68 @@ import { useState, useRef, useEffect, useCallback } from "react";
 // import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from "reactstrap";
 import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 import QRCode from "qrcode.react";
-import { Card, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, makeStyles, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@material-ui/core";
+// import { Card, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, makeStyles, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@material-ui/core";
+import { Card, Dialog, DialogTitle, DialogActions, Button, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import { storage } from '../../config/firebaseConfig'
 import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import SettingsIcon from '@material-ui/icons/Settings';
+// import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+// import SettingsIcon from '@material-ui/icons/Settings';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import SettingsIcon from '@mui/icons-material/Settings';
 import useAuth from "../../hook/auth";
 import { useSnackbar } from 'notistack';
+import { styled } from '@mui/system';
 
-export const useStyles = makeStyles((theme) => ({
-  dropzone: {
-    color: '#7a7a7a',
-    border: '2.5px dashed',
-    height: '100%',
-    margin: '0rem 2rem 1rem 2rem',
-    padding: '16px',
-    textAlign: 'center',
-    display: 'flex',
-    borderColor: '#C7C7C7',
-    backgroundColor: '#F0F0F0',
-    flexDirection: 'column',
-    alignContent: 'center',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  dialogPaper: {
-    height: '100%',
-    maxHeight: '30rem',
-    width: '100%',
-    maxWidth: '60rem',
-  },
-}), {index: 1});
+
+const Dropzone = styled(Box)(({ theme }) => ({
+  color: '#7a7a7a',
+  border: '2.5px dashed',
+  height: '100%',
+  margin: '0rem 2rem 1rem 2rem',
+  padding: '16px',
+  textAlign: 'center',
+  display: 'flex',
+  borderColor: '#C7C7C7',
+  backgroundColor: '#F0F0F0',
+  flexDirection: 'column',
+  alignContent: 'center',
+  justifyContent: 'center',
+  alignItems: 'center',
+}));
+
+
+const DialogPaper = styled(Dialog)(({ theme }) => ({
+  height: '100%',
+  maxHeight: '30rem',
+  width: '100%',
+  maxWidth: '60rem',
+}));
+
+
+// export const useStyles = makeStyles((theme) => ({
+//   dropzone: {
+//     color: '#7a7a7a',
+//     border: '2.5px dashed',
+//     height: '100%',
+//     margin: '0rem 2rem 1rem 2rem',
+//     padding: '16px',
+//     textAlign: 'center',
+//     display: 'flex',
+//     borderColor: '#C7C7C7',
+//     backgroundColor: '#F0F0F0',
+//     flexDirection: 'column',
+//     alignContent: 'center',
+//     justifyContent: 'center',
+//     alignItems: 'center'
+//   },
+//   dialogPaper: {
+//     height: '100%',
+//     maxHeight: '30rem',
+//     width: '100%',
+//     maxWidth: '60rem',
+//   },
+// }), {index: 1});
 
 
 
@@ -50,7 +80,6 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const { user } = useAuth();
 
-  const classes = useStyles();
 
   const db = getFirestore();
 
@@ -173,7 +202,7 @@ const { getRootProps, getInputProps } = useDropzone({
 
   return (
     <>
-      <Card style={{width: '100%'}}>
+      <Card sx={{width: '100%'}}>
         <CardContent>
           <Typography variant="h5">QR Codes</Typography>
           <Typography variant="subtitle1" color="textSecondary">
@@ -347,12 +376,14 @@ const { getRootProps, getInputProps } = useDropzone({
       </Card>
 
 
-      <Dialog open={openUsdzUpload} onClose={handleCloseUsdzUpload} classes={{ paper: classes.dialogPaper }}>
-          <DialogTitle>Upload Model</DialogTitle>
+      <DialogPaper open={openUsdzUpload} onClose={handleCloseUsdzUpload}>
+        <DialogTitle>Upload Model</DialogTitle>
 
-          {file ? (
+        {
+          file ? 
+          (
             <>
-             <Box 
+            <Box 
                 id="modelViewerContainer"
                 style={{height: '23rem'}}
                 dangerouslySetInnerHTML={{
@@ -360,27 +391,23 @@ const { getRootProps, getInputProps } = useDropzone({
                 }}
               />
             </>
-          
-          ) : (
-              <Box {...getRootProps()} className={classes.dropzone}>
-                <input {...getInputProps()} />
-                <p>Drag and drop your 3D model in .usdz format here, or click to select it.</p>
-                <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
-              </Box>
-          ) }
+          ) 
+          : 
+          (
+            <Dropzone {...getRootProps()} >
+              <input {...getInputProps()} />
+              <p>Drag and drop your 3D model in .usdz format here, or click to select it.</p>
+              <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
+            </Dropzone>
+          ) 
+        }
 
-          <DialogActions>
-            <MuiButton onClick={handleCloseUsdzUpload} color="primary">
-              Cancel
-            </MuiButton>
-            {/* {
-              file &&
-              <MuiButton onClick={handleSubmitUsdzUpload} color="primary">
-                Submit
-              </MuiButton>
-            } */}
-          </DialogActions>
-        </Dialog>
+        <DialogActions>
+          <Button onClick={handleCloseUsdzUpload} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </DialogPaper>
     </>
   );
   
