@@ -19,7 +19,7 @@ import { useSnackbar } from 'notistack';
 
 
 
-const StyledDropzone = styled('div')({
+const StyledDropzone = styled(Box)({
   color: '#7a7a7a',
   border: '2.5px dashed',
   height: '100%',

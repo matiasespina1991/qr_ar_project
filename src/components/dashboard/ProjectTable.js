@@ -1,19 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-// import { Card, CardBody, CardTitle, CardSubtitle, Table, Button } from "reactstrap";
 import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
 import QRCode from "qrcode.react";
-// import { Card, Dialog, DialogTitle, DialogActions, Button, Button as MuiButton, makeStyles, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@material-ui/core";
 import { Card, Dialog, DialogTitle, DialogActions, Button, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import { storage } from '../../config/firebaseConfig'
 import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
-// import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-// import SettingsIcon from '@material-ui/icons/Settings';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import SettingsIcon from '@mui/icons-material/Settings';
 import useAuth from "../../hook/auth";
 import { useSnackbar } from 'notistack';
 import { styled } from '@mui/system';
+
 
 
 const Dropzone = styled(Box)(({ theme }) => ({
@@ -30,40 +27,14 @@ const Dropzone = styled(Box)(({ theme }) => ({
   alignContent: 'center',
   justifyContent: 'center',
   alignItems: 'center',
+  height: '15rem',
 }));
 
 
 const DialogPaper = styled(Dialog)(({ theme }) => ({
   height: '100%',
-  maxHeight: '30rem',
   width: '100%',
-  maxWidth: '60rem',
 }));
-
-
-// export const useStyles = makeStyles((theme) => ({
-//   dropzone: {
-//     color: '#7a7a7a',
-//     border: '2.5px dashed',
-//     height: '100%',
-//     margin: '0rem 2rem 1rem 2rem',
-//     padding: '16px',
-//     textAlign: 'center',
-//     display: 'flex',
-//     borderColor: '#C7C7C7',
-//     backgroundColor: '#F0F0F0',
-//     flexDirection: 'column',
-//     alignContent: 'center',
-//     justifyContent: 'center',
-//     alignItems: 'center'
-//   },
-//   dialogPaper: {
-//     height: '100%',
-//     maxHeight: '30rem',
-//     width: '100%',
-//     maxWidth: '60rem',
-//   },
-// }), {index: 1});
 
 
 
@@ -123,8 +94,6 @@ const { getRootProps, getInputProps } = useDropzone({
   onDrop,
   accept: {'model/vnd.usdz+zip': ['.usdz']}
 });
-
-
 
 
   const handleEdit = (id, name) => {
@@ -410,12 +379,6 @@ const { getRootProps, getInputProps } = useDropzone({
       </DialogPaper>
     </>
   );
-  
-
-
-
-
-
 
 };
 
