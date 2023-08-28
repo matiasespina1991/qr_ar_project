@@ -39,25 +39,27 @@ export async function getServerSideProps(context) {
 function ARView({ modelId, glbUrl, usdzUrl, initialYPosition, isInteriorModel }) {
   const router = useRouter();
 
+  useEffect(() => {
+    if (!glbUrl) {
+      router.replace('/404');
+    } else {
+      const updateViewCount = async () => {
+        if (modelId) {
+          const docRef = doc(firestore, "models", modelId);
+          await updateDoc(docRef, {
+            "views.total": increment(1),
+            "views.lastViewed": serverTimestamp(),
+          });
+        }
+      };
+
+      updateViewCount();
+    }
+  }, [glbUrl]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!glbUrl) {
-    router.replace('/404');
     return null;
   }
-
-  useEffect(() => {
-    const updateViewCount = async () => {
-      if (modelId) {
-        const docRef = doc(firestore, "models", modelId);
-        await updateDoc(docRef, {
-          "views.total": increment(1),
-          "views.lastViewed": serverTimestamp(),
-        });
-      }
-    };
-
-    updateViewCount();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
