@@ -9,6 +9,7 @@ import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import SettingsIcon from '@material-ui/icons/Settings';
 import useAuth from "../../hook/auth";
+import { useSnackbar } from 'notistack';
 
 export const useStyles = makeStyles((theme) => ({
   dropzone: {
@@ -53,7 +54,22 @@ const ProjectTables = ({ qrCodesList }) => {
 
   const db = getFirestore();
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const onDrop = useCallback(async (acceptedFiles) => {
+
+    if(acceptedFiles.length === 0) {
+      enqueueSnackbar(
+        'The file you are trying to upload does not correspond to a valid .usdz file.', 
+        {
+          variant: 'error', 
+          autoHideDuration: 4000
+        }
+      );
+      console.log('ERROR: The file you are trying to upload does not correspond to a valid .usdz file.')
+      return;
+    };
+
     setAcceptedFilesState(acceptedFiles);
     const fileObject = acceptedFiles[0];
     setFile(URL.createObjectURL(fileObject));
@@ -74,8 +90,10 @@ const ProjectTables = ({ qrCodesList }) => {
     }
   }, [progress]);
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: '.usdz' });
-
+const { getRootProps, getInputProps } = useDropzone({
+  onDrop,
+  accept: {'model/vnd.usdz+zip': ['.usdz']}
+});
 
 
 

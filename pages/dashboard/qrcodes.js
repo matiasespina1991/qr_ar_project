@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import Head from "next/head";
 import ProjectTables from "../../src/components/dashboard/ProjectTable";
-import { collection, doc, onSnapshot, query, getFirestore, where, orderBy } from "firebase/firestore";
+import { collection, doc, getDoc, updateDoc, onSnapshot, query, getFirestore, where, orderBy, limit } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from "../../src/config/firebaseConfig";
-import { CircularProgress, Dialog, DialogTitle, DialogActions, Button as MuiButton, Fab, Box } from "@mui/material";
+import { CircularProgress, Dialog, DialogTitle, DialogActions, Button as MuiButton, Fab, Box, Typography, Button } from "@mui/material";
 import { styled } from '@mui/system';
 import { useDropzone } from "react-dropzone";
 import Script from "next/script";
@@ -14,6 +14,8 @@ import { uploadFileToFirebase } from "../../src/functions/uploadFileToFirebase";
 import FullLayout from "../../src/layouts/FullLayout";
 import { withProtected } from '../../src/hook/route';
 import useAuth from "../../src/hook/auth";
+import { purgeOrphanModelReferences } from "../../src/functions/dev_functions/purgeOrphanModelsReferences";
+import { useSnackbar } from 'notistack';
 
 const StyledDropzone = styled('div')({
   color: '#7a7a7a',
@@ -55,6 +57,8 @@ const QrCodes = () => {
 
   const db = getFirestore();
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
 
   useEffect(() => {
     let unsubscribeUser;
@@ -78,7 +82,8 @@ const QrCodes = () => {
           const q = query(
             collection(db, "qr_codes"),
             where("id", "in", uploadedModels),
-            orderBy("_createdAt", "desc")
+            orderBy("_createdAt", "desc"),
+            limit(30)
           );
   
           unsubscribeQrCodes = onSnapshot(q, (snapshot) => {
@@ -104,13 +109,26 @@ const QrCodes = () => {
   }, [db, user.uid]);
   
   
-
   const onFileDropToDropzone = useCallback((acceptedFiles) => {
+
+    if(acceptedFiles.length === 0) {
+      enqueueSnackbar(
+        'The file you are trying to upload does not correspond to a valid .glb file.', 
+        {
+          variant: 'error', 
+          autoHideDuration: 4000
+        }
+      );
+      console.log('ERROR: The file you are trying to upload does not correspond to a valid .glb file.')
+      return;
+    };
+
+
     setAcceptedFilesState(acceptedFiles)
     const _glbFile = acceptedFiles[0];
     
     setGlbFile(URL.createObjectURL(_glbFile));
-   
+  
     
   }, []);
 
@@ -128,7 +146,6 @@ const QrCodes = () => {
     setOpenModelUploadDialog(false);
     const modelViewer = document.getElementById('modelViewer');
 
-    console.log(modelViewer)
     
     if (!modelViewer) return;
 
@@ -158,9 +175,11 @@ const QrCodes = () => {
     );
     setGlbFile(null);
   }
-  
-
-  const { getRootProps, getInputProps } = useDropzone({ onDrop: onFileDropToDropzone, accept: '.glb' });
+ 
+  const { getRootProps, getInputProps } = useDropzone({ 
+    onDrop: onFileDropToDropzone,
+    accept: {'model/gltf-binary': ['.glb'],}
+  });
 
   const handleClose = () => {
     setGlbFile(null);
@@ -170,6 +189,11 @@ const QrCodes = () => {
   const handleClickAddModel = () => {
     setOpenModelUploadDialog(true);
   }
+
+
+
+
+  
   
   
   return (
@@ -182,6 +206,12 @@ const QrCodes = () => {
 
       <FullLayout>
         <Box style={{display: 'flex', alignItems: 'flex-end', flexDirection: 'column', margin: '3rem', padding: 0}}>
+
+          <Button 
+            onClick={() => purgeOrphanModelReferences()}
+          >
+            Fix uploaded models
+          </Button>
           
           <Box style={{marginBottom: '2rem'}}>
             <StyledFabPrimary
@@ -197,15 +227,26 @@ const QrCodes = () => {
                 position: 'relative',
               }}
             >
-              <AddIcon
-                style={{
-                  fontSize: '1.5rem',
-                  position: 'relative',
-                  top: '0.3px',
-                  left: '0.5px',
-                  opacity: '0.9'
-                }}  
-              />
+
+              { fileUploadProgress > 0 && fileUploadProgress < 100 ? 
+                <Typography sx={{color: 'black'}}>
+                  {`${Math.floor(fileUploadProgress)}%`}
+                </Typography>
+                :
+                <AddIcon
+                  style={{
+                    fontSize: '1.5rem',
+                    position: 'relative',
+                    top: '0.3px',
+                    left: '0.5px',
+                    opacity: '0.9'
+                  }}  
+                />
+              }
+              {/* <Typography>
+                  {`${Math.floor(fileUploadProgress)}%`}
+                </Typography> */}
+
               { fileUploadProgress > 0 && fileUploadProgress < 100 && 
                 <CircularProgress 
                   variant="determinate"
