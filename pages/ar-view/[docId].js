@@ -46,6 +46,7 @@ function ARView({
   modelId,
   glbUrl,
   usdzUrl,
+  placement,
   initialYPosition,
   isInteriorModel,
 }) {
