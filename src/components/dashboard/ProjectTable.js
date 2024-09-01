@@ -1,42 +1,59 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { doc, updateDoc, getFirestore, setDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  getFirestore,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
 import QRCode from "qrcode.react";
-import { Card, Dialog, DialogTitle, DialogActions, Button, Box, CircularProgress, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, CardContent } from "@mui/material";
+import {
+  Card,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+  Box,
+  CircularProgress,
+  Typography,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  CardContent,
+} from "@mui/material";
 import { useDropzone } from "react-dropzone";
-import { storage } from '../../config/firebaseConfig'
+import { storage } from "../../config/firebaseConfig";
 import { uploadUsdzToFirebase } from "../../functions/uploadFileToFirebase";
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import SettingsIcon from '@mui/icons-material/Settings';
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import SettingsIcon from "@mui/icons-material/Settings";
 import useAuth from "../../hook/auth";
-import { useSnackbar } from 'notistack';
-import { styled } from '@mui/system';
-
-
+import { useSnackbar } from "notistack";
+import { styled } from "@mui/system";
 
 const Dropzone = styled(Box)(({ theme }) => ({
-  color: '#7a7a7a',
-  border: '2.5px dashed',
-  height: '100%',
-  margin: '0rem 2rem 1rem 2rem',
-  padding: '16px',
-  textAlign: 'center',
-  display: 'flex',
-  borderColor: '#C7C7C7',
-  backgroundColor: '#F0F0F0',
-  flexDirection: 'column',
-  alignContent: 'center',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '15rem',
+  color: "#7a7a7a",
+  border: "2.5px dashed",
+  height: "100%",
+  margin: "0rem 2rem 1rem 2rem",
+  padding: "16px",
+  textAlign: "center",
+  display: "flex",
+  borderColor: "#C7C7C7",
+  backgroundColor: "#F0F0F0",
+  flexDirection: "column",
+  alignContent: "center",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "15rem",
 }));
-
 
 const DialogPaper = styled(Dialog)(({ theme }) => ({
-  height: '100%',
-  width: '100%',
+  height: "100%",
+  width: "100%",
 }));
-
-
 
 const ProjectTables = ({ modelsList: modelsList }) => {
   const [editing, setEditing] = useState(false);
@@ -51,51 +68,58 @@ const ProjectTables = ({ modelsList: modelsList }) => {
 
   const { user } = useAuth();
 
-
   const db = getFirestore();
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const onDrop = useCallback(async (acceptedFiles) => {
+  const onDrop = useCallback(
+    async (acceptedFiles) => {
+      if (acceptedFiles.length === 0) {
+        enqueueSnackbar(
+          "The file you are trying to upload does not correspond to a valid .usdz file.",
+          {
+            variant: "error",
+            autoHideDuration: 4000,
+          }
+        );
+        console.log(
+          "ERROR: The file you are trying to upload does not correspond to a valid .usdz file."
+        );
+        return;
+      }
 
-    if(acceptedFiles.length === 0) {
-      enqueueSnackbar(
-        'The file you are trying to upload does not correspond to a valid .usdz file.', 
-        {
-          variant: 'error', 
-          autoHideDuration: 4000
-        }
-      );
-      console.log('ERROR: The file you are trying to upload does not correspond to a valid .usdz file.')
-      return;
-    };
+      setAcceptedFilesState(acceptedFiles);
+      const fileObject = acceptedFiles[0];
+      const fileSize = fileObject.size;
+      setFile(URL.createObjectURL(fileObject));
 
-    setAcceptedFilesState(acceptedFiles);
-    const fileObject = acceptedFiles[0];
-    const fileSize = fileObject.size; 
-    setFile(URL.createObjectURL(fileObject));
-    
-    if (fileObject) {
-      await uploadUsdzToFirebase([fileObject], storage, db, (progress) => setProgress(progress), docId, { userId: user.uid, userEmail: user.email, fileSize: fileSize });
-    }
-    setOpenUsdzUpload(false);
-    setFile(null);
-    setProgress(0); 
-  
-  }, [db, docId, storage, user.email, user.uid]);
-  
+      if (fileObject) {
+        await uploadUsdzToFirebase(
+          [fileObject],
+          storage,
+          db,
+          (progress) => setProgress(progress),
+          docId,
+          { userId: user.uid, userEmail: user.email, fileSize: fileSize }
+        );
+      }
+      setOpenUsdzUpload(false);
+      setFile(null);
+      setProgress(0);
+    },
+    [db, docId, storage, user.email, user.uid]
+  );
 
   useEffect(() => {
-    if(progress === 100) {
+    if (progress === 100) {
       setProgress(0);
     }
   }, [progress]);
 
-const { getRootProps, getInputProps } = useDropzone({
-  onDrop,
-  accept: {'model/vnd.usdz+zip': ['.usdz']}
-});
-
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: { "model/vnd.usdz+zip": [".usdz"] },
+  });
 
   const handleEdit = (id, name) => {
     setEditing(true);
@@ -113,25 +137,21 @@ const { getRootProps, getInputProps } = useDropzone({
   };
 
   const handleKeyDown = (event, id) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleSave(id);
     }
   };
 
   const handleClickUsdzUpload = (id) => {
     setOpenUsdzUpload(true);
-    setDocId(id); 
+    setDocId(id);
   };
-
 
   const handleCloseUsdzUpload = () => {
     setOpenUsdzUpload(false);
   };
-  
 
-
-  const toggleInteriorModel = async (docId) =>  {
-
+  const toggleInteriorModel = async (docId) => {
     const modelDocRef = doc(db, "models", docId);
 
     const modelDocSnapshot = await getDoc(modelDocRef);
@@ -139,16 +159,68 @@ const { getRootProps, getInputProps } = useDropzone({
     if (modelDocSnapshot.exists) {
       const modelData = modelDocSnapshot.data();
       const currentIsModelInteriorValue = modelData.isInteriorModel;
-  
-      
-      await setDoc(doc(db, "models", docId), { isInteriorModel: !currentIsModelInteriorValue}, { merge: true }).catch((error) => {
+
+      await setDoc(
+        doc(db, "models", docId),
+        { isInteriorModel: !currentIsModelInteriorValue },
+        { merge: true }
+      ).catch((error) => {
         console.log("Error getting document:", error);
-      });  
+      });
     } else {
-      console.log("Error when setting model to interior model. Document of the model does not exist");
+      console.log(
+        "Error when setting model to interior model. Document of the model does not exist"
+      );
     }
   };
-  
+
+  const toggleModelPlacement = async (docId) => {
+    const modelDocRef = doc(db, "models", docId);
+
+    const modelDocSnapshot = await getDoc(modelDocRef);
+
+    if (modelDocSnapshot.exists) {
+      const modelData = modelDocSnapshot.data();
+      const currentIsModelInteriorValue = modelData.placement;
+
+      if (
+        currentIsModelInteriorValue === "wall" ||
+        !currentIsModelInteriorValue
+      ) {
+        await setDoc(
+          doc(db, "models", docId),
+          { placement: "floor" },
+          { merge: true }
+        ).catch((error) => {
+          console.log("Error getting document:", error);
+        });
+        return;
+      }
+
+      if (currentIsModelInteriorValue === "floor") {
+        await setDoc(
+          doc(db, "models", docId),
+          { placement: "wall" },
+          { merge: true }
+        ).catch((error) => {
+          console.log("Error getting document:", error);
+        });
+        return;
+      }
+
+      //  await setDoc(
+      //    doc(db, "models", docId),
+      //    { isInteriorModel: !currentIsModelInteriorValue },
+      //    { merge: true }
+      //  ).catch((error) => {
+      //    console.log("Error getting document:", error);
+      //  });
+    } else {
+      console.log(
+        "Error when setting model to interior model. Document of the model does not exist"
+      );
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -165,14 +237,13 @@ const { getRootProps, getInputProps } = useDropzone({
     };
   }, [inputRef]);
 
-  if(modelsList.length === 0) {
-    return ( <> </>);
+  if (modelsList.length === 0) {
+    return <> </>;
   }
-
 
   return (
     <>
-      <Card sx={{width: '100%'}}>
+      <Card sx={{ width: "100%" }}>
         <CardContent>
           <Typography variant="h5">QR Codes</Typography>
           <Typography variant="subtitle1" color="textSecondary">
@@ -182,195 +253,280 @@ const { getRootProps, getInputProps } = useDropzone({
             <Table className="text-nowrap mt-2 align-middle">
               <TableHead>
                 <TableRow>
-                  <TableCell style={{ paddingLeft: '2.4rem' }}>QR Preview</TableCell>
-                  <TableCell style={{ paddingLeft: '1.5rem' }}>Preview</TableCell>
+                  <TableCell style={{ paddingLeft: "2.4rem" }}>
+                    QR Preview
+                  </TableCell>
+                  <TableCell style={{ paddingLeft: "1.5rem" }}>
+                    Preview
+                  </TableCell>
                   <TableCell>Project Name</TableCell>
                   <TableCell>Formats</TableCell>
                   <TableCell>is Interior Model</TableCell>
+                  <TableCell>Place on wall</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Settings</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
+                {modelsList &&
+                  modelsList.map((tdata, index) => (
+                    <TableRow key={tdata.id}>
+                      <TableCell>
+                        <Box display="flex" alignItems="center" p={4}>
+                          <a
+                            href={tdata.qrUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <QRCode
+                              id="qr-code-el"
+                              value={tdata.qrUrl}
+                              size={105}
+                              includeMargin={true}
+                            />
+                          </a>
+                        </Box>
+                      </TableCell>
 
-                {modelsList && modelsList.map((tdata, index) => (
-
-                  <TableRow key={tdata.id}>
-                    
-                    <TableCell>
-                      <Box display="flex" alignItems="center" p={4}>
-                        <a href={tdata.qrUrl} target="_blank" rel="noopener noreferrer">
-                          <QRCode id="qr-code-el" value={tdata.qrUrl} size={105} includeMargin={true} />
-                        </a>
-                      </Box>
-                    </TableCell>
-
-                    <TableCell>
-                      {tdata.modelPreviewImgUrl ? 
-                        <img 
-                          style={{objectFit: 'cover', objectPosition: 'center center', width: '6rem', height: '6rem'}}
-                          src={tdata.modelPreviewImgUrl}
-                        />
-                        : 'N/A'
-                      }
-                    </TableCell>
-
-                    <TableCell style={{maxWidth: '15rem'}}>
-                      <Box style={{whiteSpace: 'break-spaces'}}>
-                        {editing && editingId === tdata.id ? (
-                          <input
-                            ref={inputRef}
-                            value={editName}
-                            onChange={(e) => setEditName(e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(e, tdata.id)}
-                            style={{ width: `${editName.length + 1}ch` }}
-                            autoFocus
+                      <TableCell>
+                        {tdata.modelPreviewImgUrl ? (
+                          <img
+                            style={{
+                              objectFit: "cover",
+                              objectPosition: "center center",
+                              width: "6rem",
+                              height: "6rem",
+                            }}
+                            src={tdata.modelPreviewImgUrl}
                           />
                         ) : (
-                          <Typography component="span" onClick={() => handleEdit(tdata.id, tdata.modelName)}>
-                            {tdata.modelName}
-                          </Typography>
+                          "N/A"
                         )}
-                        {tdata._debug_comments && (
-                          <Box style={{ 
-            
-                            whiteSpace: 'break-spaces',
-                          }}>
-                            <Typography variant="body2" color="textSecondary" component="div" 
+                      </TableCell>
+
+                      <TableCell style={{ maxWidth: "15rem" }}>
+                        <Box style={{ whiteSpace: "break-spaces" }}>
+                          {editing && editingId === tdata.id ? (
+                            <input
+                              ref={inputRef}
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              onKeyDown={(e) => handleKeyDown(e, tdata.id)}
+                              style={{ width: `${editName.length + 1}ch` }}
+                              autoFocus
+                            />
+                          ) : (
+                            <Typography
+                              component="span"
+                              onClick={() =>
+                                handleEdit(tdata.id, tdata.modelName)
+                              }
                             >
-                              ( {tdata._debug_comments} )
+                              {tdata.modelName}
+                            </Typography>
+                          )}
+                          {tdata._debug_comments && (
+                            <Box
+                              style={{
+                                whiteSpace: "break-spaces",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                component="div"
+                              >
+                                ( {tdata._debug_comments} )
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      </TableCell>
+
+                      <TableCell>
+                        <Box
+                          display="inline-flex"
+                          flexDirection="column"
+                          transform="scale(0.9)"
+                        >
+                          <Box display="inline-flex" marginLeft="1.13rem">
+                            <Typography style={{ marginBottom: 0 }}>
+                              glb
+                              <span
+                                style={{
+                                  padding: "0.35rem",
+                                  marginLeft: "0.35rem",
+                                  position: "relative",
+                                  top: "0.8px",
+                                }}
+                                className={`${
+                                  tdata.files.glb.url
+                                    ? "bg-success"
+                                    : "bg-danger"
+                                } rounded-circle d-inline-block`}
+                              />
+                            </Typography>
+                          </Box>
+                          <Box display="inline-flex" alignItems="center">
+                            <Button
+                              onClick={() => handleClickUsdzUpload(tdata.id)}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                padding: "unset",
+                                color: "#000000db",
+                                textTransform: "none",
+                              }}
+                            >
+                              <Box display="inline-flex">
+                                <Typography style={{ marginBottom: 0 }}>
+                                  usdz
+                                  <span
+                                    style={{
+                                      padding: "0.39rem",
+                                      marginLeft: "0.35rem",
+                                      position: "relative",
+                                      top: "0.8px",
+                                      backgroundColor: tdata.files.usdz.url
+                                        ? "#0AB7AF"
+                                        : "#f44336",
+                                    }}
+                                    className={`${
+                                      tdata.files.usdz.url
+                                        ? "bg-success"
+                                        : "bg-danger"
+                                    } rounded-circle d-inline-block`}
+                                  />
+                                </Typography>
+                              </Box>
+                            </Button>
+
+                            {tdata.id === docId && progress ? (
+                              <CircularProgress
+                                variant="determinate"
+                                style={{ marginLeft: 2.5 }}
+                                size={11}
+                                thickness={9}
+                                value={progress}
+                                color="primary"
+                              />
+                            ) : null}
+                          </Box>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell>
+                        <Box style={{ paddingLeft: "2.4rem" }}>
+                          <Button
+                            style={{ background: "none", padding: 0 }}
+                            onClick={() => toggleInteriorModel(tdata.id)}
+                          >
+                            {tdata.isInteriorModel === true ? (
+                              <FiberManualRecordIcon
+                                style={{ color: "#0AB7AF" }}
+                              />
+                            ) : tdata.isInteriorModel === false ? (
+                              <FiberManualRecordIcon
+                                style={{ color: "#f44336" }}
+                              />
+                            ) : null}
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell>
+                        <Box style={{ paddingLeft: "2.4rem" }}>
+                          <Button
+                            style={{ background: "none", padding: 0 }}
+                            onClick={() => toggleModelPlacement(tdata.id)}
+                          >
+                            {tdata.placement === "wall" ? (
+                              <FiberManualRecordIcon
+                                style={{ color: "#0AB7AF" }}
+                              />
+                            ) : (
+                              <FiberManualRecordIcon
+                                style={{ color: "#f44336" }}
+                              />
+                            )}
+                          </Button>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell>
+                        {tdata.status === "pending" ? (
+                          <FiberManualRecordIcon color="secondary" />
+                        ) : tdata.status === "holt" ? (
+                          <FiberManualRecordIcon color="warning" />
+                        ) : (
+                          <Box display="inline-flex">
+                            <Typography style={{ marginBottom: 0 }}>
+                              Live
+                              <span
+                                style={{
+                                  padding: "0.35rem",
+                                  marginLeft: "0.35rem",
+                                  position: "relative",
+                                  top: "0.8px",
+                                }}
+                                className="bg-danger rounded-circle d-inline-block"
+                              />
                             </Typography>
                           </Box>
                         )}
-                      </Box>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell>
-                      <Box display="inline-flex" flexDirection="column" transform="scale(0.9)">
-                        <Box display="inline-flex" marginLeft="1.13rem">
-                          <Typography style={{marginBottom: 0}}>
-                            glb
-                            <span 
-                              style={{
-                                padding: '0.35rem',
-                                marginLeft: '0.35rem',
-                                position: 'relative',
-                                top: '0.8px'
-                              }} 
-                              className={`${tdata.files.glb.url ? 'bg-success': 'bg-danger'} rounded-circle d-inline-block`}
-                            />
-                          </Typography>
-                        </Box>
-                        <Box display="inline-flex" alignItems="center">
-                          <Button onClick={() => handleClickUsdzUpload(tdata.id)} style={{background: 'transparent', border: 'none', padding: 'unset', color: '#000000db', textTransform: 'none'}}>
-                            <Box display="inline-flex">
-                              <Typography style={{marginBottom: 0}}>
-                                usdz
-                                <span
-                                  style={{
-                                    padding: '0.39rem',
-                                    marginLeft: '0.35rem',
-                                    position: 'relative',
-                                    top: '0.8px',
-                                    backgroundColor: tdata.files.usdz.url ? '#0AB7AF' : '#f44336'
-                                  }}
-                                  className={`${tdata.files.usdz.url ? 'bg-success' : 'bg-danger'} rounded-circle d-inline-block`}
-                                />
-                              </Typography>
-                            </Box>
-                          </Button>
-
-                          {tdata.id === docId && progress ? (
-                            <CircularProgress variant="determinate" style={{marginLeft: 2.5}} size={11} thickness={9}  value={progress} color='primary' />
-                          ) : null}
-                        </Box>
-                      </Box>
-                    </TableCell>
-
-                    <TableCell>
-                      <Box style={{ paddingLeft: '2.4rem' }}>
-                        <Button
-                          style={{ background: 'none', padding: 0 }}
-                          onClick={() => toggleInteriorModel(tdata.id)}
+                      <TableCell>
+                        <Box
+                          style={{
+                            top: "0.3rem",
+                            position: "relative",
+                            marginLeft: "1.2rem",
+                          }}
                         >
-                          {tdata.isInteriorModel === true ? (
-                            <FiberManualRecordIcon style={{color: '#0AB7AF'}} />
-
-                          ) : tdata.isInteriorModel === false ? (
-                            <FiberManualRecordIcon style={{color: '#f44336'}} />
-                          ) : null}
-                        </Button>
-                      </Box>
-                    </TableCell>
-
-                    <TableCell>
-                      {tdata.status === "pending" ? (
-                        <FiberManualRecordIcon color="secondary" />
-                      ) : tdata.status === "holt" ? (
-                        <FiberManualRecordIcon color="warning" />
-                      ) : (
-                        <Box display="inline-flex">
-                          <Typography style={{marginBottom: 0}}>
-                            Live
-                            <span 
-                              style={{
-                                padding: '0.35rem',
-                                marginLeft: '0.35rem',
-                                position: 'relative',
-                                top: '0.8px'
-                              }} 
-                              className="bg-danger rounded-circle d-inline-block"
-                            />
-                          </Typography>
+                          <SettingsIcon />
                         </Box>
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      <Box style={{
-                        top: '0.3rem',
-                        position: 'relative',
-                        marginLeft: '1.2rem'
-                      }}>
-                        <SettingsIcon />
-                      </Box>
-                    </TableCell> 
-
-                  </TableRow>
-                ))}
-
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
         </CardContent>
       </Card>
 
-
       <DialogPaper open={openUsdzUpload} onClose={handleCloseUsdzUpload}>
         <DialogTitle>Upload Model</DialogTitle>
 
-        {
-          file ? 
-          (
-            <>
-            <Box 
-                id="modelViewerContainer"
-                style={{height: '23rem'}}
-                dangerouslySetInnerHTML={{
-                  __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" ios-src="${file}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
-                }}
-              />
-            </>
-          ) 
-          : 
-          (
-            <Dropzone {...getRootProps()} >
-              <input {...getInputProps()} />
-              <p>Drag and drop your 3D model in .usdz format here, or click to select it.</p>
-              <svg style={{opacity: 0.5, width: '51px', height: '51px'}} className="MuiSvgIcon-root MuiDropzoneArea-icon" focusable="false" viewBox="0 0 24 24" aria-hidden="true" role="presentation"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path></svg>
-            </Dropzone>
-          ) 
-        }
+        {file ? (
+          <>
+            <Box
+              id="modelViewerContainer"
+              style={{ height: "23rem" }}
+              dangerouslySetInnerHTML={{
+                __html: `<model-viewer id="modelViewer" style="width: 100%; height: 400px;" ios-src="${file}" ar-modes="scene-viewer webxr" ar autoplay auto-rotate camera-controls></model-viewer>`,
+              }}
+            />
+          </>
+        ) : (
+          <Dropzone {...getRootProps()}>
+            <input {...getInputProps()} />
+            <p>
+              Drag and drop your 3D model in .usdz format here, or click to
+              select it.
+            </p>
+            <svg
+              style={{ opacity: 0.5, width: "51px", height: "51px" }}
+              className="MuiSvgIcon-root MuiDropzoneArea-icon"
+              focusable="false"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              role="presentation"
+            >
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"></path>
+            </svg>
+          </Dropzone>
+        )}
 
         <DialogActions>
           <Button onClick={handleCloseUsdzUpload} color="primary">
@@ -380,7 +536,6 @@ const { getRootProps, getInputProps } = useDropzone({
       </DialogPaper>
     </>
   );
-
 };
 
 export default ProjectTables;
